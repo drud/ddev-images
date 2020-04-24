@@ -12,7 +12,7 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
     vim \
     wget
 
-FROM bitnami/minideb:buster AS deb-onelayer
+FROM scratch AS deb-onelayer
 COPY --from=base / /
 
 FROM deb-onelayer AS ddev-php-base
@@ -52,9 +52,9 @@ RUN curl -sSL "https://github.com/drush-ops/drush/releases/download/${DRUSH_VERS
 RUN curl -sSL "https://github.com/drush-ops/drush-launcher/releases/download/${DRUSH_LAUNCHER_VERSION}/drush.phar" -o /usr/local/bin/drush && chmod +x /usr/local/bin/drush
 RUN curl -sSL -o /usr/local/bin/wp-cli -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && chmod +x /usr/local/bin/wp-cli && ln -sf /usr/local/bin/wp-cli /usr/local/bin/wp
 ADD ddev-php-files /
+RUN apt-get -qq clean -y && rm -rf /var/lib/apt/lists/*
 
-
-FROM ddev-php-base AS ddev-php-prod
+FROM scratch AS ddev-php-prod
 COPY --from=ddev-php-base / /
 
 
@@ -65,13 +65,13 @@ RUN echo "deb http://nginx.org/packages/debian/ $(lsb_release -sc) nginx" > /etc
 RUN apt-get -qq install --no-install-recommends --no-install-suggests -y nginx
 RUN apt-get -qq autoremove -y
 ADD nginx-base-files /
+RUN apt-get -qq clean -y && rm -rf /var/lib/apt/lists/*
 
-FROM nginx-base as ddev-nginx
+FROM scratch as ddev-nginx
 COPY --from=nginx-base / /
 
 FROM ddev-php-base as ddev-webserver-base
 ENV PHP_VERSIONS="php5.6 php7.0 php7.1 php7.2 php7.3 php7.4"
-ENV MAILHOG_VERSION=1.0.0
 ENV BACKDROP_DRUSH_VERSION=1.3.1
 ENV MKCERT_VERSION=v1.4.1
 
@@ -114,10 +114,22 @@ ADD ddev-webserver-base-files /
 ADD ddev-webserver-scripts /
 
 
-FROM ddev-webserver-base as ddev-webserver-prod
+FROM scratch as ddev-webserver-prod
+ENV NGINX_SITE_TEMPLATE /etc/nginx/nginx-site.conf
+ENV APACHE_SITE_TEMPLATE /etc/apache2/apache-site.conf
+ENV WEBSERVER_DOCROOT /var/www/html
+# For backward compatibility only
+ENV NGINX_DOCROOT $WEBSERVER_DOCROOT
+ENV TERMINUS_CACHE_DIR=/mnt/ddev-global-cache/terminus/cache
+
+# Defines vars in colon-separated notation to be subsituted with values for NGINX_SITE_TEMPLATE on start
+# NGINX_DOCROOT is for backward compatibility only, to break less people.
+ENV NGINX_SITE_VARS '$WEBSERVER_DOCROOT,$NGINX_DOCROOT'
+ENV APACHE_SITE_VARS '$WEBSERVER_DOCROOT'
 COPY --from=ddev-webserver-base / /
 
-FROM ddev-webserver-base as ddev-webserver-dev
+FROM ddev-webserver-base as ddev-webserver-dev-base
+ENV MAILHOG_VERSION=1.0.0
 RUN wget -q -O - https://packages.blackfire.io/gpg.key | apt-key add -
 RUN echo "deb http://packages.blackfire.io/debian any main" > /etc/apt/sources.list.d/blackfire.list
 
@@ -149,9 +161,7 @@ RUN apt-get  install --no-install-recommends --no-install-suggests -y \
     zip
 
 ADD ddev-webserver-dev-files /
-
 RUN phpdismod xdebug
-
 RUN curl -sSL "https://github.com/mailhog/MailHog/releases/download/v${MAILHOG_VERSION}/MailHog_linux_amd64" -o /usr/local/bin/mailhog
 
 RUN curl -sSL -O https://raw.githubusercontent.com/pantheon-systems/terminus-installer/master/builds/installer.phar && php installer.phar install
@@ -207,8 +217,22 @@ RUN addgroup --gid 98 testgroup && adduser testuser --ingroup testgroup --disabl
 
 EXPOSE 80 443 8025
 HEALTHCHECK --interval=1s --retries=10 --timeout=120s --start-period=10s CMD ["/healthcheck.sh"]
-
 CMD ["/start.sh"]
+RUN apt-get -qq clean -y && rm -rf /var/lib/apt/lists/*
+
+FROM scratch as ddev-webserver-dev
+ENV NGINX_SITE_TEMPLATE /etc/nginx/nginx-site.conf
+ENV APACHE_SITE_TEMPLATE /etc/apache2/apache-site.conf
+ENV WEBSERVER_DOCROOT /var/www/html
+# For backward compatibility only
+ENV NGINX_DOCROOT $WEBSERVER_DOCROOT
+ENV TERMINUS_CACHE_DIR=/mnt/ddev-global-cache/terminus/cache
+
+# Defines vars in colon-separated notation to be subsituted with values for NGINX_SITE_TEMPLATE on start
+# NGINX_DOCROOT is for backward compatibility only, to break less people.
+ENV NGINX_SITE_VARS '$WEBSERVER_DOCROOT,$NGINX_DOCROOT'
+ENV APACHE_SITE_VARS '$WEBSERVER_DOCROOT'
+COPY --from=ddev-webserver-dev-base / /
 
 # TODO
 # locales-all?

@@ -2,8 +2,8 @@
 
 ##### These variables need to be adjusted in most repositories #####
 
-# Base docker repo repo for a push
-DOCKER_REPO ?= drud/ddev-php-web
+# Base docker org for tag and push
+DOCKER_ORG ?= drud
 SHELL=/bin/bash
 
 # Optional to docker build
@@ -22,9 +22,9 @@ VERSION := $(shell git describe --tags --always --dirty)
 # This version-strategy uses a manual value to set the version string
 #VERSION := 1.2.3
 
-DOCKER_BUILDKIT=0
+DOCKER_BUILDKIT=1
 
-build: ddev-nginx ddev-php ddev-webserver-prod ddev-webserver-dev
+build: ddev-nginx ddev-php-prod ddev-webserver-prod ddev-webserver-dev
 
 container: container-name
 	DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) docker build --label com.ddev.buildcommit=$(shell git describe --tags --always)  -t $(DOCKER_REPO):$(VERSION) $(DOCKER_ARGS) .
@@ -39,4 +39,4 @@ push-name:
 	@echo "pushed: $(DOCKER_REPO):$(VERSION)"
 
 ddev-nginx ddev-php-prod ddev-webserver-prod ddev-webserver-dev:
-	DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) docker build --label com.ddev.buildhost=${HOSTNAME} --target=$@ --label com.ddev.buildcommit=$(shell git describe --tags --always)  -t $@:$(VERSION) $(DOCKER_ARGS) .
+	DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) docker build --label com.ddev.buildhost=${shell hostname} --target=$@  -t $(DOCKER_ORG)/$@:$(VERSION) $(DOCKER_ARGS) .
