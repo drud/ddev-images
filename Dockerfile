@@ -1,3 +1,4 @@
+### ---------------------------base--------------------------------------
 ### Build the base Debian image that will be used in every other image
 FROM bitnami/minideb:buster as base
 RUN apt-get update
@@ -13,7 +14,9 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
     procps \
     vim \
     wget
+#END base
 
+### ---------------------------ddev-php-base--------------------------------------
 ### Build ddev-php-base, which is the base for ddev-php-prod and ddev-webserver-*
 ### This combines the packages and features of DDEV-Local's ddev-webserver and
 ### DDEV-Live's PHP image
@@ -71,14 +74,18 @@ RUN wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linu
 ADD ddev-php-files /
 RUN apt-get -qq autoremove && apt-get -qq clean -y && rm -rf /var/lib/apt/lists/*
 RUN usermod -u ${WWW_UID} www-data && groupmod -g ${WWW_UID} www-data
+#END ddev-php-base
 
+### ---------------------------ddev-php-prod--------------------------------------
 ### Build ddev-php-prod from ddev-php-base as a single layer
 ### There aren't any differences
 FROM scratch AS ddev-php-prod
 COPY --from=ddev-php-base / /
 EXPOSE 8080 8585
 CMD ["/usr/sbin/php-fpm", "-F"]
+#END ddev-php-prod
 
+### ---------------------------nginx-base--------------------------------------
 ### Build nginx-base
 FROM base as nginx-base
 RUN wget -q -O /tmp/nginx_signing.key http://nginx.org/keys/nginx_signing.key && \
@@ -88,12 +95,15 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y nginx
 RUN apt-get -qq autoremove -y
 ADD nginx-base-files /
 RUN apt-get -qq clean -y && rm -rf /var/lib/apt/lists/*
+#END nginx-base
 
+### ---------------------------ddev-nginx--------------------------------------
 ### Build ddev-nginx (for DDEV-Local) by converting to single layer
 FROM scratch as ddev-nginx
 COPY --from=nginx-base / /
+#END ddev-nginx
 
-
+### ---------------------------ddev-webserver-base--------------------------------------
 ### Build ddev-php-base from ddev-webserver-base
 ### ddev-php-base is the basic of ddev-php-prod (for DDEV-Live)
 ### and ddev-webserver-* (For DDEV-Local)
@@ -139,6 +149,7 @@ ADD ddev-webserver-base-files /
 ADD ddev-webserver-base-scripts /
 # END ddev-webserver-base
 
+### ---------------------------ddev-webserver-prod--------------------------------------
 ### Build ddev-webserver-prod, the hardened version of ddev-webserver-base
 ### (Withut dev features, single layer)
 FROM scratch as ddev-webserver-prod
@@ -156,7 +167,7 @@ ENV APACHE_SITE_VARS '$WEBSERVER_DOCROOT'
 COPY --from=ddev-webserver-base / /
 # END ddev-webserver-prod
 
-
+### ---------------------------ddev-webserver-dev-base--------------------------------------
 ### Build ddev-webserver-dev-base from ddev-webserver-base
 FROM ddev-webserver-base as ddev-webserver-dev-base
 ENV MAILHOG_VERSION=1.0.0
@@ -246,7 +257,7 @@ CMD ["/start.sh"]
 RUN apt-get -qq clean -y && rm -rf /var/lib/apt/lists/*
 #END ddev-webserver-dev-base
 
-
+### ---------------------------ddev-webserver-dev--------------------------------------
 ### Build ddev-webserver-dev by turning ddev-webserver-dev-base into one layer
 FROM scratch as ddev-webserver-dev
 ENV NGINX_SITE_TEMPLATE /etc/nginx/nginx-site.conf
