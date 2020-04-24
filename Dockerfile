@@ -123,13 +123,11 @@ RUN wget -q -O /tmp/nginx_signing.key http://nginx.org/keys/nginx_signing.key &&
     apt-key add /tmp/nginx_signing.key && \
     echo "deb http://nginx.org/packages/debian/ $(lsb_release -sc) nginx" > /etc/apt/sources.list.d/nginx.list
 
-RUN apt-get update && apt-get -qq install --no-install-recommends --no-install-suggests -y apache2 libcap2-bin nginx supervisor
+RUN apt-get update && apt-get -qq install --no-install-recommends --no-install-suggests -y apache2 libcap2-bin locales-all nginx supervisor
 
 RUN for v in $PHP_VERSIONS; do \
     apt-get -qq install --no-install-recommends --no-install-suggests -y libapache2-mod-$v || exit $?; \
 done
-# TODO: Consider whether locales-all should be included. Requires docs if removed.
-# RUN apt-get  install --no-install-recommends --no-install-suggests -y locales-all
 
 RUN apt-get -qq autoremove && apt-get -qq clean -y && rm -rf /var/lib/apt/lists/*
 
@@ -138,7 +136,7 @@ RUN setcap CAP_NET_BIND_SERVICE=+eip /usr/sbin/nginx
 RUN setcap CAP_NET_BIND_SERVICE=+eip /usr/sbin/apache2
 
 ADD ddev-webserver-base-files /
-ADD ddev-webserver-scripts /
+ADD ddev-webserver-base-scripts /
 # END ddev-webserver-base
 
 ### Build ddev-webserver-prod, the hardened version of ddev-webserver-base
@@ -237,7 +235,7 @@ RUN a2enmod ssl headers expires
 RUN chmod -R go-w /home/.ssh
 
 # scripts added last because they're most likely place to make changes, speeds up build
-ADD ddev-webserver-scripts /
+ADD ddev-webserver-base-scripts /
 RUN chmod ugo+x /start.sh /healthcheck.sh
 
 RUN addgroup --gid 98 testgroup && adduser testuser --ingroup testgroup --disabled-password --gecos "" --uid 98

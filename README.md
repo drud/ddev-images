@@ -12,6 +12,7 @@ This repository will provide the build techniques for the webserving/php DDEV-Lo
 
 | Image           | Old size | New size | Notes                                           |
 |-----------------|----------|----------|-------------------------------------------------|
-| ddev-webserver  | 1.62GB   | 1.2GB    | Provisionally removed locales-all package                     |
+| ddev-webserver  | 1.62GB   | 1.2GB    |                      |
 | DDEV-Live PHP   | 752MB    | 725MB    | New has all 6 versions of PHP and still smaller |
+| DDEV-LIVE PHP with just php7.3 | 594MB | |
 | DDEV-Live nginx | pending  |          |                                                 |
