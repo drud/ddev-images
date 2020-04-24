@@ -22,12 +22,12 @@ VERSION := $(shell git describe --tags --always --dirty)
 # This version-strategy uses a manual value to set the version string
 #VERSION := 1.2.3
 
-DOCKER_BUILDKIT=1
+DOCKER_BUILDKIT=0
 
-build: container
+build: ddev-nginx ddev-php ddev-webserver-prod ddev-webserver-dev
 
 container: container-name
-	DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) docker build --label com.ddev.buildhost=${HOSTNAME} --label com.ddev.buildcommit=$(shell git describe --tags --always)  -t $(DOCKER_REPO):$(VERSION) $(DOCKER_ARGS) .
+	DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) docker build --label com.ddev.buildcommit=$(shell git describe --tags --always)  -t $(DOCKER_REPO):$(VERSION) $(DOCKER_ARGS) .
 
 container-name:
 	@echo "container: $(DOCKER_REPO):$(VERSION)"
@@ -38,5 +38,5 @@ push: push-name
 push-name:
 	@echo "pushed: $(DOCKER_REPO):$(VERSION)"
 
-ddev-nginx ddev-php ddev-webserver:
-	DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) docker build --label com.ddev.buildhost=${HOSTNAME} --target=$< --label com.ddev.buildcommit=$(shell git describe --tags --always)  -t $@:$(VERSION) $(DOCKER_ARGS) .
+ddev-nginx ddev-php-prod ddev-webserver-prod ddev-webserver-dev:
+	DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) docker build --label com.ddev.buildhost=${HOSTNAME} --target=$@ --label com.ddev.buildcommit=$(shell git describe --tags --always)  -t $@:$(VERSION) $(DOCKER_ARGS) .
