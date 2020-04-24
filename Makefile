@@ -38,5 +38,5 @@ push: push-name
 push-name:
 	@echo "pushed: $(DOCKER_REPO):$(VERSION)"
 
-ddev-nginx ddev-php ddev-webserver: 
+ddev-nginx ddev-php ddev-webserver:
 	DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) docker build --label com.ddev.buildhost=${HOSTNAME} --target=$< --label com.ddev.buildcommit=$(shell git describe --tags --always)  -t $@:$(VERSION) $(DOCKER_ARGS) .

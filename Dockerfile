@@ -11,10 +11,10 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
         procps \
         wget
 
-FROM bitnami/minideb:buster AS deb_onelayer
+FROM bitnami/minideb:buster AS deb-onelayer
 COPY --from=base / /
 
-FROM deb_onelayer AS phpbase
+FROM deb-onelayer AS phpbase
 ENV PHP_VERSIONS="php5.6 php7.0 php7.1 php7.2 php7.3 php7.4"
 ENV PHP_DEFAULT_VERSION="7.3"
 ENV PHP_INI=/etc/php/$PHP_DEFAULT_VERSION/fpm/php.ini
@@ -42,24 +42,24 @@ RUN apt-get -qq autoremove -y
 FROM phpbase AS ddev-php
 COPY --from=phpbase / /
 
-FROM deb_onelayer as nginx_base
+FROM deb-onelayer as nginx-base
 RUN wget -q -O /tmp/nginx_signing.key http://nginx.org/keys/nginx_signing.key && \
         apt-key add /tmp/nginx_signing.key
 RUN echo "deb http://nginx.org/packages/debian/ $(lsb_release -sc) nginx" > /etc/apt/sources.list.d/nginx.list && apt-get update
 RUN apt-get -qq install --no-install-recommends --no-install-suggests -y nginx
 RUN apt-get -qq autoremove -y
 
-FROM nginx_base as ddev-nginx
-COPY --from=nginx_base / /
+FROM nginx-base as ddev-nginx
+COPY --from=nginx-base / /
 
-FROM ddev-php as ddev-webserver
+FROM ddev-php as ddev-webserver-base
 RUN wget -q -O /tmp/nginx_signing.key http://nginx.org/keys/nginx_signing.key && \
         apt-key add /tmp/nginx_signing.key
 RUN echo "deb http://nginx.org/packages/debian/ $(lsb_release -sc) nginx" > /etc/apt/sources.list.d/nginx.list && apt-get update
 RUN apt-get -qq install --no-install-recommends --no-install-suggests -y nginx
 
-FROM ddev-webserver as FULL_WEBSERVER_ONELAYER
-COPY --from=ddev-webserver / /
+FROM ddev-webserver as ddev-webserver
+COPY --from=ddev-webserver-base / /
 
 
 
