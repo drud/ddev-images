@@ -24,7 +24,7 @@ VERSION := $(shell git describe --tags --always --dirty)
 
 DOCKER_BUILDKIT=1
 
-build: ddev-nginx ddev-php-prod ddev-webserver-prod ddev-webserver-dev
+build: ddev-nginx-prod ddev-php-prod ddev-webserver-prod ddev-webserver-dev
 
 container: container-name
 	DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) docker build --label com.ddev.buildcommit=$(shell git describe --tags --always)  -t $(DOCKER_REPO):$(VERSION) $(DOCKER_ARGS) .
@@ -38,5 +38,5 @@ push: push-name
 push-name:
 	@echo "pushed: $(DOCKER_REPO):$(VERSION)"
 
-ddev-nginx ddev-php-prod ddev-webserver-prod ddev-webserver-dev:
+ddev-nginx-prod ddev-php-prod ddev-webserver-prod ddev-webserver-dev nginx-base nginx-mod-builder base:
 	DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) docker build --label com.ddev.buildhost=${shell hostname} --target=$@  -t $(DOCKER_ORG)/$@:$(VERSION) $(DOCKER_ARGS) .

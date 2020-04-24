@@ -88,20 +88,86 @@ CMD ["/usr/sbin/php-fpm", "-F"]
 ### ---------------------------nginx-base--------------------------------------
 ### Build nginx-base
 FROM base as nginx-base
+ENV NGINX_FULL_VERSION=1.16.1-1~buster
+ENV NGINX_SHORT_VERSION=1.16.1
 RUN wget -q -O /tmp/nginx_signing.key http://nginx.org/keys/nginx_signing.key && \
         apt-key add /tmp/nginx_signing.key
-RUN echo "deb http://nginx.org/packages/debian/ $(lsb_release -sc) nginx" > /etc/apt/sources.list.d/nginx.list && apt-get update
-RUN apt-get -qq install --no-install-recommends --no-install-suggests -y nginx
-RUN apt-get -qq autoremove -y
+RUN echo "deb http://nginx.org/packages/debian/ $(lsb_release -sc) nginx" >/etc/apt/sources.list.d/nginx.list
+RUN echo "deb-src http://nginx.org/packages/debian/ $(lsb_release -sc) nginx" >> /etc/apt/sources.list.d/nginx.list
+RUN apt-get -qq update
+RUN apt-get -qq install --no-install-recommends --no-install-suggests -y libcap2-bin nginx=${NGINX_FULL_VERSION}
+
 ADD nginx-base-files /
-RUN apt-get -qq clean -y && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir --parents \
+    /etc/nginx/sites-enabled \
+    /var/log/nginx \
+    /var/cache/nginx/client_temp \
+    /var/www/html \
+    && touch /var/log/nginx/access.log \
+    && touch /var/log/nginx/error.log \
+    && touch /etc/nginx/nginx.conf \
+    && chown -R www-data:www-data /var/www /var/cache/nginx /var/log/nginx /etc/nginx/sites-enabled /run \
+    && chmod -R 755 /var/www /etc/nginx/sites-enabled \
+    && chmod -R 766 /var/cache/nginx /var/log/nginx \
+    && chmod 744 /etc/nginx/nginx.conf
+
+EXPOSE 8080
+CMD ["nginx"]
+
 #END nginx-base
 
-### ---------------------------ddev-nginx--------------------------------------
-### Build ddev-nginx (for DDEV-Local) by converting to single layer
-FROM scratch as ddev-nginx
+### ---------------------------nginx-mod-builder--------------------------------------
+#nginx-mod-builder is a throwaway image just to build
+#needed nginx modules
+FROM nginx-base AS nginx-mod-builder
+ENV DEBIAN_FRONTEND noninteractive
+ENV ERRORS 0
+ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ARG NGINX_OPENTRACING_VERSION=v0.9.0
+ARG VTS_VERSION=0.1.18
+
+RUN apt-get -qq --no-install-recommends --no-install-suggests -y install \
+    ncurses-bin \
+    build-essential \
+    cmake \
+    pkg-config \
+    libz-dev \
+    automake \
+    autogen \
+    autoconf  \
+    libtool
+RUN apt-get build-dep -y nginx=${NGINX_FULL_VERSION}
+WORKDIR /tmp
+### Grab opentracing
+RUN curl -sSL https://github.com/opentracing-contrib/nginx-opentracing/releases/download/${NGINX_OPENTRACING_VERSION}/linux-amd64-nginx-${NGINX_SHORT_VERSION}-ngx_http_module.so.tgz -o trace.tar.gz \
+    && tar -zxf trace.tar.gz \
+    && rm trace.tar.gz
+### Grab VTS
+RUN curl -sSL https://github.com/vozlt/nginx-module-vts/archive/v${VTS_VERSION}.tar.gz -o vts.tar.gz \
+    && tar -zxf vts.tar.gz \
+    && rm vts.tar.gz
+### Build nginx-opentracing modules
+RUN curl -sSL  https://github.com/nginx/nginx/archive/release-${NGINX_SHORT_VERSION}.tar.gz -o nginx-release-${NGINX_SHORT_VERSION}.tar.gz \
+    && tar zxf nginx-release-${NGINX_SHORT_VERSION}.tar.gz \
+    && cd nginx-release-${NGINX_SHORT_VERSION}
+
+WORKDIR /tmp/nginx-release-${NGINX_SHORT_VERSION}
+RUN auto/configure \
+          --with-compat \
+      --add-dynamic-module=/tmp/nginx-module-vts-$VTS_VERSION
+RUN make modules
+RUN make install
+RUN cp /tmp/ngx_http_opentracing_module.so /usr/local/nginx/modules/
+#END nginx-mod-builder
+
+### ---------------------------ddev-nginx-prod--------------------------------------
+### Build ddev-nginx (for DDEV-Live) by converting to single layer
+FROM scratch as ddev-nginx-prod
 COPY --from=nginx-base / /
-#END ddev-nginx
+COPY --from=nginx-mod-builder /usr/local/nginx/modules/ngx_http_opentracing_module.so /usr/lib/nginx/modules/ngx_http_opentracing_module.so
+COPY --from=nginx-mod-builder /usr/local/nginx/modules/ngx_http_vhost_traffic_status_module.so /usr/lib/nginx/modules/ngx_http_vhost_traffic_status_module.so
+#END ddev-nginx-prod
 
 ### ---------------------------ddev-webserver-base--------------------------------------
 ### Build ddev-php-base from ddev-webserver-base
