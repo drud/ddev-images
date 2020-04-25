@@ -167,6 +167,7 @@ FROM scratch as ddev-nginx-prod
 COPY --from=nginx-base / /
 COPY --from=nginx-mod-builder /usr/local/nginx/modules/ngx_http_opentracing_module.so /usr/lib/nginx/modules/ngx_http_opentracing_module.so
 COPY --from=nginx-mod-builder /usr/local/nginx/modules/ngx_http_vhost_traffic_status_module.so /usr/lib/nginx/modules/ngx_http_vhost_traffic_status_module.so
+ADD /ddev-nginx-prod-files /
 #END ddev-nginx-prod
 
 ### ---------------------------ddev-webserver-base--------------------------------------
