@@ -339,5 +339,8 @@ ENV TERMINUS_CACHE_DIR=/mnt/ddev-global-cache/terminus/cache
 ENV NGINX_SITE_VARS '$WEBSERVER_DOCROOT,$NGINX_DOCROOT'
 ENV APACHE_SITE_VARS '$WEBSERVER_DOCROOT'
 COPY --from=ddev-webserver-dev-base / /
+EXPOSE 80 8025
+HEALTHCHECK --interval=1s --retries=10 --timeout=120s --start-period=10s CMD ["/healthcheck.sh"]
+CMD ["/start.sh"]
 #END ddev-webserver-dev
 
