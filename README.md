@@ -13,6 +13,12 @@ To build, use `make VERSION=<versiontag>` or `make images`. To push, use `make p
 
 Individual images can be built using `make ddev-nginx-prod VERSION=<versiontag>`
 
+## Testing
+
+Each image is intended to have a robust set of tests. The tests should be included in the `tests/<imagename>` directory, and should be launched with a `test.sh` in that directory. 
+
+I'm hoping to get the current ddev-webserver-dev test converted to [BATS](github.com/bats-core/bats-core) in the course of project.
+
 ## Image Size comparisons (uncompressed)
 
 | Image           | Old size | New size | Notes                                           |

@@ -35,3 +35,6 @@ push: images
 
 ddev-nginx-prod ddev-php-prod ddev-webserver-prod ddev-webserver-dev nginx-base nginx-mod-builder base:
 	DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) docker build --label com.ddev.buildhost=${shell hostname} --target=$@  -t $(DOCKER_ORG)/$@:$(VERSION) $(DOCKER_ARGS) .
+
+test: images
+	for item in $(DEFAULT_IMAGES); do if [ -d tests/$$item ]; then tests/$$item/test.sh $(DOCKER_ORG)/$$item:$(VERSION); fi; done
