@@ -1,10 +1,12 @@
-# Makefile for a standard repo with associated container
+# Makefile for a standard repo with associated image
 
 ##### These variables need to be adjusted in most repositories #####
 
 # Base docker org for tag and push
 DOCKER_ORG ?= drud
 SHELL=/bin/bash
+
+DEFAULT_IMAGES = ddev-nginx-prod ddev-php-prod ddev-webserver-prod ddev-webserver-dev
 
 # Optional to docker build
 # DOCKER_ARGS = --build-arg MYSQL_PACKAGE_VERSION=5.7.17-1
@@ -24,19 +26,13 @@ VERSION := $(shell git describe --tags --always --dirty)
 
 DOCKER_BUILDKIT=1
 
-build: ddev-nginx-prod ddev-php-prod ddev-webserver-prod ddev-webserver-dev
+build: images
 
-container: container-name
-	DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) docker build --label com.ddev.buildcommit=$(shell git describe --tags --always)  -t $(DOCKER_REPO):$(VERSION) $(DOCKER_ARGS) .
+images: $(DEFAULT_IMAGES)
 
-container-name:
-	@echo "container: $(DOCKER_REPO):$(VERSION)"
-
-push: push-name
-	docker push $(DOCKER_REPO):$(VERSION)
-
-push-name:
-	@echo "pushed: $(DOCKER_REPO):$(VERSION)"
+push: images
+	for item in $(DEFAULT_IMAGES); do docker push $(DOCKER_ORG)/$$item:$(VERSION); done
+	echo "pushed $(DOCKER_ORG)/$@:$(VERSION)"
 
 ddev-nginx-prod ddev-php-prod ddev-webserver-prod ddev-webserver-dev nginx-base nginx-mod-builder base:
 	DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) docker build --label com.ddev.buildhost=${shell hostname} --target=$@  -t $(DOCKER_ORG)/$@:$(VERSION) $(DOCKER_ARGS) .
