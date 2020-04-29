@@ -39,5 +39,6 @@ I'm hoping to get the current ddev-webserver-dev test converted to [BATS](github
 3. **Compiled modules**: The ddev-nginx images use custom-compiled modules that then seem not to be included in the configuration. Should we just drop those modules?
 4. **Making hardened ddev-webserver work**: ddev-webserver-prod will not have sudo, and it currently depends on sudo in its start script. Those features will need to be handled in the Dockerfile.
 5. **`ddev-webserver-*` does not inherit from `ddev-nginx-*`**: Currently `ddev-webserver-*` uses its own nginx and apache installation, instead of trying to grap the files from ddev-nginx, as that seemed risky. I think this is OK for now, but we'll need to make sure that the actual nginx configs are as similar as possible.
-6. **Details**: 
+6. **Building, pulling, and pushing, and repository**: Currently the DDEV-Live Dockerfiles are embedded in a golang file, which doesn't seem very effective for sharing. With this repo, that's somewhwat solved, but we have to figure out about what repository we use, how it gets pushed there, etc.
+7. **Details**: 
     * Review the actual PHP extensions bundled. php-ldap, for example, and php-xdebug.
