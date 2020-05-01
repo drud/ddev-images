@@ -238,6 +238,7 @@ COPY --from=ddev-webserver-base / /
 ### Build ddev-webserver-dev-base from ddev-webserver-base
 FROM ddev-webserver-base as ddev-webserver-dev-base
 ENV MAILHOG_VERSION=1.0.0
+ENV CAROOT /mnt/ddev-global-cache/mkcert
 RUN wget -q -O - https://packages.blackfire.io/gpg.key | apt-key add -
 RUN echo "deb http://packages.blackfire.io/debian any main" > /etc/apt/sources.list.d/blackfire.list
 RUN apt-get update
@@ -333,6 +334,7 @@ ENV WEBSERVER_DOCROOT /var/www/html
 # For backward compatibility only
 ENV NGINX_DOCROOT $WEBSERVER_DOCROOT
 ENV TERMINUS_CACHE_DIR=/mnt/ddev-global-cache/terminus/cache
+ENV CAROOT /mnt/ddev-global-cache/mkcert
 
 # Defines vars in colon-separated notation to be subsituted with values for NGINX_SITE_TEMPLATE on start
 # NGINX_DOCROOT is for backward compatibility only, to break less people.

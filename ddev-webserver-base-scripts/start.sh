@@ -111,7 +111,9 @@ if [ -d /mnt/ddev_config/homeadditions ]; then
 fi
 
 # It's possible CAROOT does not exist or is not writeable (if host-side mkcert -install not run yet)
-sudo mkdir -p ${CAROOT} && sudo chmod -R ugo+rw ${CAROOT}
+sudo mkdir -p ${CAROOT}
+sudo chmod -R ugo+rw ${CAROOT}
+
 # This will install the certs from $CAROOT (/mnt/ddev-global-cache/mkcert)
 mkcert -install
 
