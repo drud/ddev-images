@@ -29,7 +29,7 @@ I'm hoping to get the current ddev-webserver-dev test converted to [BATS](github
 | DDEV-Live PHP (ddev-live-php-prod)  | 752MB    | 725MB    | New has all 6 versions of PHP and still smaller |
 | DDEV-LIVE PHP with just php7.3 | 752MB | 594MB |
 | ddev-live-nginx-prod | 136MB  |   181MB    |                                                 |
-| ddev-webserver-prod (new hardened open source image) | 1.01GB | |
+| ddev-webserver-prod (new hardened open source image) | N/A | 1.01GB | 
 
 
 ## Discussion Items
