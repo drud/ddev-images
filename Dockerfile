@@ -81,6 +81,7 @@ RUN usermod -u ${WWW_UID} www-data && groupmod -g ${WWW_UID} www-data
 ### There aren't any differences
 FROM scratch AS ddev-php-prod
 COPY --from=ddev-php-base / /
+ENV DRUSH_LAUNCHER_FALLBACK=/usr/local/bin/drush8
 EXPOSE 8080 8585
 CMD ["/usr/sbin/php-fpm", "-F"]
 #END ddev-php-prod
@@ -226,6 +227,7 @@ ENV WEBSERVER_DOCROOT /var/www/html
 # For backward compatibility only
 ENV NGINX_DOCROOT $WEBSERVER_DOCROOT
 ENV TERMINUS_CACHE_DIR=/mnt/ddev-global-cache/terminus/cache
+ENV DRUSH_LAUNCHER_FALLBACK=/usr/local/bin/drush8
 
 # Defines vars in colon-separated notation to be subsituted with values for NGINX_SITE_TEMPLATE on start
 # NGINX_DOCROOT is for backward compatibility only, to break less people.
@@ -335,6 +337,7 @@ ENV WEBSERVER_DOCROOT /var/www/html
 ENV NGINX_DOCROOT $WEBSERVER_DOCROOT
 ENV TERMINUS_CACHE_DIR=/mnt/ddev-global-cache/terminus/cache
 ENV CAROOT /mnt/ddev-global-cache/mkcert
+ENV DRUSH_LAUNCHER_FALLBACK=/usr/local/bin/drush8
 
 # Defines vars in colon-separated notation to be subsituted with values for NGINX_SITE_TEMPLATE on start
 # NGINX_DOCROOT is for backward compatibility only, to break less people.
