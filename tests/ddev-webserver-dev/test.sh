@@ -121,8 +121,8 @@ for v in 5.6 7.0 7.1 7.2 7.3 7.4; do
 done
 
 # Run various project_types and check behavior.
-for project_type in drupal6 drupal7 drupal8 typo3 backdrop wordpress default; do
-	PHP_VERSION="7.1"
+for project_type in drupal6 drupal7 drupal8 drupal9 typo3 backdrop wordpress default; do
+	PHP_VERSION="7.3"
 
 	if [ "$project_type" == "drupal6" ]; then
 	  PHP_VERSION="5.6"
@@ -164,7 +164,7 @@ for project_type in drupal6 drupal7 drupal8 typo3 backdrop wordpress default; do
 done
 
 echo "--- testing use of custom nginx and php configs"
-docker run  -u "$MOUNTUID:$MOUNTGID" -p $HOST_HTTP_PORT:$CONTAINER_HTTP_PORT -p $HOST_HTTPS_PORT:$CONTAINER_HTTPS_PORT -e "DOCROOT=potato" -e "DDEV_PHP_VERSION=7.3" -v "/$PWD/test/testdata:/mnt/ddev_config:ro" -v ddev-global-cache:/mnt/ddev-global-cache -d --name $CONTAINER_NAME -d $DOCKER_IMAGE
+docker run  -u "$MOUNTUID:$MOUNTGID" -p $HOST_HTTP_PORT:$CONTAINER_HTTP_PORT -p $HOST_HTTPS_PORT:$CONTAINER_HTTPS_PORT -e "DOCROOT=potato" -e "DDEV_PHP_VERSION=7.3" -v "/$PWD/tests/ddev-webserver-dev/testdata:/mnt/ddev_config:ro" -v ddev-global-cache:/mnt/ddev-global-cache -d --name $CONTAINER_NAME -d $DOCKER_IMAGE
 if ! containercheck; then
     exit 109
 fi
