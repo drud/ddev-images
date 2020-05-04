@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  build_and_test:
     machine:
       image: ubuntu-1604:201903-01
 
@@ -8,3 +8,18 @@ jobs:
       - checkout
       - run: make test
 
+workflows:
+  version: 2
+  normal_build_and_test:
+    jobs:
+    - build_and_test
+  nightly_build:
+    triggers:
+    - schedule:
+        cron: "0 3 * * *"
+        filters:
+          branches:
+            only:
+            - master
+    jobs:
+    - build_and_test
