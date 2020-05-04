@@ -21,8 +21,8 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
 ### This combines the packages and features of DDEV-Local's ddev-webserver and
 ### DDEV-Live's PHP image
 ### TODO: See if we want to just build with a single PHP version or as now with all of them.
-ARG PHP_DEFAULT_VERSION="7.3"
 FROM base AS ddev-php-base
+ARG PHP_DEFAULT_VERSION="7.3"
 ENV PHP_VERSIONS="php5.6 php7.0 php7.1 php7.2 php7.3 php7.4"
 ENV PHP_INI=/etc/php/$PHP_DEFAULT_VERSION/fpm/php.ini
 ENV WWW_UID=33
@@ -241,6 +241,7 @@ COPY --from=ddev-webserver-base / /
 FROM ddev-webserver-base as ddev-webserver-dev-base
 ENV MAILHOG_VERSION=1.0.0
 ENV CAROOT /mnt/ddev-global-cache/mkcert
+ENV PHP_DEFAULT_VERSION="7.3"
 RUN wget -q -O - https://packages.blackfire.io/gpg.key | apt-key add -
 RUN echo "deb http://packages.blackfire.io/debian any main" > /etc/apt/sources.list.d/blackfire.list
 RUN apt-get update
@@ -330,6 +331,7 @@ RUN apt-get -qq clean -y && rm -rf /var/lib/apt/lists/*
 ### ---------------------------ddev-webserver-dev--------------------------------------
 ### Build ddev-webserver-dev by turning ddev-webserver-dev-base into one layer
 FROM scratch as ddev-webserver-dev
+ENV PHP_DEFAULT_VERSION="7.3"
 ENV NGINX_SITE_TEMPLATE /etc/nginx/nginx-site.conf
 ENV APACHE_SITE_TEMPLATE /etc/apache2/apache-site.conf
 ENV WEBSERVER_DOCROOT /var/www/html
