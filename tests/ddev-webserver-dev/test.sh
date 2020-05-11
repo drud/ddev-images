@@ -16,7 +16,7 @@ MOUNTGID=98
 # /usr/local/bin is added for git-bash, where it may not be in the $PATH.
 export PATH="/usr/local/bin:$PATH"
 
-mkcert -install 2>/dev/null
+mkcert -install
 
 # Wait for container to be ready.
 function containerwait {

@@ -8,6 +8,7 @@ jobs:
       - checkout
       # Prepare machine with mkcert; this will probably move to a script later
       - run: "sudo curl -sSlL -o /usr/local/bin/mkcert https://github.com/FiloSottile/mkcert/releases/download/v1.4.1/mkcert-v1.4.1-linux-amd64 && sudo chmod +x /usr/local/bin/mkcert"
+      - run: mkcert -install
       - run: make test
 
 workflows:
