@@ -6,12 +6,13 @@ jobs:
 
     steps:
       - checkout
-      - run: "sudo apt-get update && sudo apt-get install -y -qq curl libnss3-tools libcurl4-gnutls-dev"
+      - run: "sudo apt-get -qq update && sudo apt-get install -y -qq curl libnss3-tools libcurl4-gnutls-dev"
       # Prepare machine with mkcert; this will probably move to a script later
       # Without this .curlrc CircleCI linux image doesn't respect mkcert certs
       - run:  echo "capath=/etc/ssl/certs/" >>~/.curlrc
       - run: "sudo curl -sSlL -o /usr/local/bin/mkcert https://github.com/FiloSottile/mkcert/releases/download/v1.4.1/mkcert-v1.4.1-linux-amd64 && sudo chmod +x /usr/local/bin/mkcert"
       - run: mkcert -install
+      - run: make 
       - run: make test
 
 workflows:
