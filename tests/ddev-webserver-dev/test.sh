@@ -11,6 +11,9 @@ export HOST_HTTPS_PORT="8443"
 export CONTAINER_HTTP_PORT="80"
 export CONTAINER_HTTPS_PORT="443"
 export CONTAINER_NAME=webserver-test
+export PHP_VERSION=7.4
+export WEBSERVER_TYPE=nginx-fpm
+
 MOUNTUID=98
 MOUNTGID=98
 # /usr/local/bin is added for git-bash, where it may not be in the $PATH.
@@ -45,6 +48,16 @@ cleanup
 
 # We have to push the CA into the ddev-global-cache volume so it will be respected
 docker run -t --rm -u "$MOUNTUID:$MOUNTGID" -v "$(mkcert -CAROOT):/mnt/mkcert" -v ddev-global-cache:/mnt/ddev-global-cache $DOCKER_IMAGE bash -c "sudo mkdir -p /mnt/ddev-global-cache/mkcert && sudo chmod -R ugo+w /mnt/ddev-global-cache/* && sudo cp -R /mnt/mkcert /mnt/ddev-global-cache"
+
+# Run general tests with a default container
+docker run -u "$MOUNTUID:$MOUNTGID" -p $HOST_HTTP_PORT:$CONTAINER_HTTP_PORT -p $HOST_HTTPS_PORT:$CONTAINER_HTTPS_PORT -e "DOCROOT=docroot" -e "DDEV_PHP_VERSION=${PHP_VERSION}" -e "DDEV_WEBSERVER_TYPE=${WEBSERVER_TYPE}" -d --name $CONTAINER_NAME -v ddev-global-cache:/mnt/ddev-global-cache -d $DOCKER_IMAGE >/dev/null
+if ! containerwait; then
+    echo "=============== Failed containerwait after docker run with  DDEV_WEBSERVER_TYPE=${WEBSERVER_TYPE} DDEV_PHP_VERSION=$PHP_VERSION ==================="
+    exit 100
+fi
+bats tests/ddev-webserver-dev/general.bats
+
+cleanup
 
 for PHP_VERSION in 5.6 7.0 7.1 7.2 7.3 7.4; do
     for WEBSERVER_TYPE in nginx-fpm apache-fpm apache-cgi; do
