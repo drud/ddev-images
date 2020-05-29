@@ -1,0 +1,32 @@
+version: 2
+jobs:
+  build_and_test:
+    machine:
+      image: ubuntu-1604:201903-01
+
+    steps:
+      - checkout
+      - run: "sudo apt-get -qq update && sudo apt-get install -y -qq curl libnss3-tools libcurl4-gnutls-dev"
+      # Prepare machine with mkcert; this will probably move to a script later
+      # Without this .curlrc CircleCI linux image doesn't respect mkcert certs
+      - run:  echo "capath=/etc/ssl/certs/" >>~/.curlrc
+      - run: "sudo curl -sSlL -o /usr/local/bin/mkcert https://github.com/FiloSottile/mkcert/releases/download/v1.4.1/mkcert-v1.4.1-linux-amd64 && sudo chmod +x /usr/local/bin/mkcert"
+      - run: mkcert -install
+      - run: make 
+      - run: make test
+
+workflows:
+  version: 2
+  normal_build_and_test:
+    jobs:
+    - build_and_test
+  nightly_build:
+    triggers:
+    - schedule:
+        cron: "0 3 * * *"
+        filters:
+          branches:
+            only:
+            - master
+    jobs:
+    - build_and_test
