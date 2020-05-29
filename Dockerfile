@@ -342,6 +342,7 @@ ENV NGINX_DOCROOT $WEBSERVER_DOCROOT
 ENV TERMINUS_CACHE_DIR=/mnt/ddev-global-cache/terminus/cache
 ENV CAROOT /mnt/ddev-global-cache/mkcert
 ENV DRUSH_LAUNCHER_FALLBACK=/usr/local/bin/drush8
+ENV BASH_ENV /etc/bash.nointeractive.bashrc
 
 ENV DDEV_LIVE_CONFIG_FILE_PATH /mnt/ddev-global-cache/ddev-live/cli-config.json
 ENV DDEV_LIVE_NO_VERSION_PROMPT true
