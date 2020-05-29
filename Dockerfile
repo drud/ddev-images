@@ -1,8 +1,7 @@
 ### ---------------------------base--------------------------------------
 ### Build the base Debian image that will be used in every other image
 FROM bitnami/minideb:buster as base
-RUN apt-get update
-RUN set -o errexit && apt-get -qq update
+RUN apt-get -qq update
 RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
     apt-transport-https \
     ca-certificates \
