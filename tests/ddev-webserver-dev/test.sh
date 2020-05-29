@@ -43,6 +43,9 @@ function cleanup {
 trap cleanup EXIT
 cleanup
 
+# We have to push the CA into the ddev-global-cache volume so it will be respected
+docker run -t --rm -u "$MOUNTUID:$MOUNTGID" -v "$(mkcert -CAROOT):/mnt/mkcert" -v ddev-global-cache:/mnt/ddev-global-cache $DOCKER_IMAGE bash -c "sudo mkdir -p /mnt/ddev-global-cache/mkcert && sudo chmod -R ugo+w /mnt/ddev-global-cache/* && sudo cp -R /mnt/mkcert /mnt/ddev-global-cache"
+
 for PHP_VERSION in 5.6 7.0 7.1 7.2 7.3 7.4; do
     for WEBSERVER_TYPE in nginx-fpm apache-fpm apache-cgi; do
         export PHP_VERSION WEBSERVER_TYPE
