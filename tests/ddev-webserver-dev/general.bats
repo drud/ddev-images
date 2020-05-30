@@ -6,3 +6,7 @@
        docker exec $CONTAINER_NAME bash -c "command -v $item >/dev/null"
     done
 }
+
+@test "Verify /var/www/html/vendor/bin is in PATH on ddev/docker exec" {
+    docker exec $CONTAINER_NAME bash -c 'echo $PATH | grep /var/www/html/vendor/bin'
+}
