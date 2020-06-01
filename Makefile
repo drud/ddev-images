@@ -6,7 +6,7 @@
 DOCKER_ORG ?= drud
 SHELL=/bin/bash
 
-DEFAULT_IMAGES = ddev-nginx-prod ddev-php-prod ddev-webserver-prod ddev-webserver-dev
+DEFAULT_IMAGES = ddev-php-base ddev-php-prod
 
 # Optional to docker build
 # DOCKER_ARGS = --build-arg MYSQL_PACKAGE_VERSION=5.7.17-1
@@ -33,7 +33,7 @@ images: $(DEFAULT_IMAGES)
 push: images
 	for item in $(DEFAULT_IMAGES); do docker push $(DOCKER_ORG)/$$item:$(VERSION); echo "pushed $(DOCKER_ORG)/$item"; done
 
-ddev-nginx-prod ddev-php-prod ddev-webserver-prod ddev-webserver-dev nginx-base nginx-mod-builder base:
+ddev-php-prod ddev-php-base:
 	DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) docker build --label com.ddev.buildhost=${shell hostname} --target=$@  -t $(DOCKER_ORG)/$@:$(VERSION) $(DOCKER_ARGS) .
 
 test: images
