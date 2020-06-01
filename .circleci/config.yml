@@ -1,13 +1,4 @@
 version: 2
-jobs:
-  build_and_test:
-    machine:
-      image: ubuntu-1604:201903-01
-
-    steps:
-      - checkout
-      - run: make
-      - run: make test
 
 workflows:
   version: 2
@@ -24,3 +15,35 @@ workflows:
             - master
     jobs:
     - build_and_test
+
+  release:
+    jobs:
+    - release_build:
+        context: ddev-images
+        filters:
+          tags:
+            only:
+            - "/.*/"
+          branches:
+            ignore: /.*/
+
+
+jobs:
+  build_and_test:
+    machine:
+      image: ubuntu-1604:201903-01
+
+    steps:
+      - checkout
+      - run: make
+      - run: make test
+
+  release_build:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+    - checkout
+    - run: make test
+    - run: echo $DOCKERHUB_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
+    - run: make push
+    - run: docker logout
