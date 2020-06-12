@@ -45,5 +45,5 @@ jobs:
     - checkout
     - run: make test
     - run: echo $DOCKERHUB_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
-    - run: make push
+    - run: make push VERSION=${CIRCLE_TAG}
     - run: docker logout
