@@ -7,6 +7,7 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
     ca-certificates \
     bzip2 \
     curl \
+    git \
     gnupg \
     less \
     lsb-release \
@@ -26,13 +27,11 @@ ENV PHP_VERSIONS="php5.6 php7.0 php7.1 php7.2 php7.3 php7.4"
 ENV PHP_INI=/etc/php/$PHP_DEFAULT_VERSION/fpm/php.ini
 ENV WWW_UID=33
 ENV YQ_VERSION=2.4.1
-ENV DRUSH_VERSION=8.3.2
+ENV DRUSH_VERSION=8.3.5
 ENV DRUSH_LAUNCHER_VERSION=0.6.0
 ENV DRUSH_LAUNCHER_FALLBACK=/usr/local/bin/drush8
 # composer normally screams about running as root, we don't need that.
 ENV COMPOSER_ALLOW_SUPERUSER 1
-ENV COMPOSER_CACHE_DIR /mnt/ddev-global-cache/composer
-# Windows, especially Win10 Home/Docker toolbox, can take forever on composer build.
 ENV COMPOSER_PROCESS_TIMEOUT 2000
 
 RUN wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg && \
@@ -73,6 +72,7 @@ RUN wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linu
 ADD ddev-php-files /
 RUN apt-get -qq autoremove && apt-get -qq clean -y && rm -rf /var/lib/apt/lists/*
 RUN usermod -u ${WWW_UID} www-data && groupmod -g ${WWW_UID} www-data
+ADD /.docker-build-info.txt /
 #END ddev-php-base
 
 ### ---------------------------ddev-php-prod--------------------------------------

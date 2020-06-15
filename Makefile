@@ -20,6 +20,8 @@ DEFAULT_IMAGES = ddev-php-base ddev-php-prod
 # This version-strategy uses git tags to set the version string
 # VERSION can be overridden on make commandline: make VERSION=0.9.1 push
 VERSION := $(shell git describe --tags --always --dirty)
+BUILDINFO = $(shell echo hash=$$(git rev-parse --short HEAD) Built $$(date) by $${USER} on $$(hostname) $(BUILD_IMAGE) )
+
 #
 # This version-strategy uses a manual value to set the version string
 #VERSION := 1.2.3
@@ -33,10 +35,16 @@ images: $(DEFAULT_IMAGES)
 push: images
 	for item in $(DEFAULT_IMAGES); do docker push $(DOCKER_ORG)/$$item:$(VERSION); echo "pushed $(DOCKER_ORG)/$$item"; done
 
-ddev-php-prod ddev-php-base:
+ddev-php-prod ddev-php-base: buildinfo
 	DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) docker build --label com.ddev.buildhost=${shell hostname} --target=$@  -t $(DOCKER_ORG)/$@:$(VERSION) $(DOCKER_ARGS) .
 
 test: images
 	for item in $(DEFAULT_IMAGES); do \
 		if [ -x tests/$$item/test.sh ]; then tests/$$item/test.sh $(DOCKER_ORG)/$$item:$(VERSION); fi; \
 	done
+
+version:
+	@echo VERSION:$(VERSION)
+
+buildinfo:
+	@echo "$(VERSION) $(BUILDINFO)" >.docker-build-info.txt
