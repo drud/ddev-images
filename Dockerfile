@@ -23,8 +23,10 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
 ### TODO: See if we want to just build with a single PHP version or as now with all of them.
 FROM base AS ddev-php-base
 ARG PHP_DEFAULT_VERSION="7.3"
-ENV PHP_VERSIONS="php5.6 php7.0 php7.1 php7.2 php7.3 php7.4"
-ENV PHP_INI=/etc/php/$PHP_DEFAULT_VERSION/fpm/php.ini
+ENV DDEV_PHP_VERSION=$PHP_DEFAULT_VERSION
+#ENV PHP_VERSIONS="php7.2 php7.3 php7.4"
+ENV PHP_VERSIONS=$PHP_DEFAULT_VERSION
+ENV PHP_INI=/etc/php/$DDEV_PHP_VERSION/fpm/php.ini
 ENV WWW_UID=33
 ENV YQ_VERSION=2.4.1
 ENV DRUSH_VERSION=8.3.5
@@ -53,14 +55,7 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
     yarn
 
 RUN for v in $PHP_VERSIONS; do \
-    apt-get -qq install --no-install-recommends --no-install-suggests -y $v-apcu $v-bcmath $v-bz2 $v-curl $v-cgi $v-cli $v-common $v-fpm $v-gd $v-intl $v-json $v-ldap $v-mbstring $v-memcached $v-mysql $v-opcache $v-pgsql $v-readline $v-redis $v-soap $v-sqlite3 $v-xdebug $v-xml $v-xmlrpc $v-zip || exit $?; \
-    if [ $v != "php5.6" ]; then \
-        apt-get -qq install --no-install-recommends --no-install-suggests -y $v-apcu-bc || exit $?; \
-    fi \
-done
-
-RUN for v in php5.6 php7.0 php7.1; do \
-    apt-get -qq install --no-install-recommends --no-install-suggests -y $v-mcrypt || exit $?; \
+    apt-get -qq install --no-install-recommends --no-install-suggests -y $v-apcu $v-apcu-bc $v-bcmath $v-bz2 $v-curl $v-cgi $v-cli $v-common $v-fpm $v-gd $v-intl $v-json $v-ldap $v-mbstring $v-memcached $v-mysql $v-opcache $v-pgsql $v-readline $v-redis $v-soap $v-sqlite3 $v-xdebug $v-xml $v-xmlrpc $v-zip || exit $?; \
 done
 
 RUN apt-get -qq autoremove -y
@@ -72,7 +67,11 @@ RUN wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linu
 ADD ddev-php-files /
 RUN apt-get -qq autoremove && apt-get -qq clean -y && rm -rf /var/lib/apt/lists/*
 RUN usermod -u ${WWW_UID} www-data && groupmod -g ${WWW_UID} www-data
+RUN	update-alternatives --set php /usr/bin/php${DDEV_PHP_VERSION}
+RUN ln -sf /usr/sbin/php-fpm${DDEV_PHP_VERSION} /usr/sbin/php-fpm
+RUN mkdir -p /run/php && chown -R www-data:www-data /run
 ADD /.docker-build-info.txt /
+
 #END ddev-php-base
 
 ### ---------------------------ddev-php-prod--------------------------------------
