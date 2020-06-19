@@ -23,10 +23,8 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
 ### TODO: See if we want to just build with a single PHP version or as now with all of them.
 FROM base AS ddev-php-base
 ARG PHP_DEFAULT_VERSION="7.3"
-ENV DDEV_PHP_VERSION=$PHP_DEFAULT_VERSION
-#ENV PHP_VERSIONS="php7.2 php7.3 php7.4"
-ENV PHP_VERSIONS=$PHP_DEFAULT_VERSION
-ENV PHP_INI=/etc/php/$DDEV_PHP_VERSION/fpm/php.ini
+ENV PHP_VERSIONS="php5.6 php7.0 php7.1 php7.2 php7.3 php7.4"
+ENV PHP_INI=/etc/php/$PHP_DEFAULT_VERSION/fpm/php.ini
 ENV WWW_UID=33
 ENV YQ_VERSION=2.4.1
 ENV DRUSH_VERSION=8.3.5
@@ -55,7 +53,14 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
     yarn
 
 RUN for v in $PHP_VERSIONS; do \
-    apt-get -qq install --no-install-recommends --no-install-suggests -y $v-apcu $v-apcu-bc $v-bcmath $v-bz2 $v-curl $v-cgi $v-cli $v-common $v-fpm $v-gd $v-intl $v-json $v-ldap $v-mbstring $v-memcached $v-mysql $v-opcache $v-pgsql $v-readline $v-redis $v-soap $v-sqlite3 $v-xdebug $v-xml $v-xmlrpc $v-zip || exit $?; \
+    apt-get -qq install --no-install-recommends --no-install-suggests -y $v-apcu $v-bcmath $v-bz2 $v-curl $v-cgi $v-cli $v-common $v-fpm $v-gd $v-intl $v-json $v-ldap $v-mbstring $v-memcached $v-mysql $v-opcache $v-pgsql $v-readline $v-redis $v-soap $v-sqlite3 $v-xdebug $v-xml $v-xmlrpc $v-zip || exit $?; \
+    if [ $v != "php5.6" ]; then \
+        apt-get -qq install --no-install-recommends --no-install-suggests -y $v-apcu-bc || exit $?; \
+    fi \
+done
+
+RUN for v in php5.6 php7.0 php7.1; do \
+    apt-get -qq install --no-install-recommends --no-install-suggests -y $v-mcrypt || exit $?; \
 done
 
 RUN apt-get -qq autoremove -y
