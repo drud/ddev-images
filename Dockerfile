@@ -23,6 +23,7 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
 ### TODO: See if we want to just build with a single PHP version or as now with all of them.
 FROM base AS ddev-php-base
 ARG PHP_DEFAULT_VERSION="7.3"
+ENV DDEV_PHP_VERSION=$PHP_DEFAULT_VERSION
 ENV PHP_VERSIONS="php5.6 php7.0 php7.1 php7.2 php7.3 php7.4"
 ENV PHP_INI=/etc/php/$PHP_DEFAULT_VERSION/fpm/php.ini
 ENV WWW_UID=33
