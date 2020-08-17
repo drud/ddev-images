@@ -53,7 +53,9 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
     sqlite3 \
     yarn
 
+# PHP 5.6 is not available on linux/arm64 so we skip that version there
 RUN for v in $PHP_VERSIONS; do \
+    if [ $v == "php5.6" && $TARGETPLATFORM == "linux/arm64" ]; then continue; fi \
     apt-get -qq install --no-install-recommends --no-install-suggests -y $v-apcu $v-bcmath $v-bz2 $v-curl $v-cgi $v-cli $v-common $v-fpm $v-gd $v-intl $v-json $v-ldap $v-mbstring $v-memcached $v-mysql $v-opcache $v-pgsql $v-readline $v-redis $v-soap $v-sqlite3 $v-xdebug $v-xml $v-xmlrpc $v-zip || exit $?; \
     if [ $v != "php5.6" ]; then \
         apt-get -qq install --no-install-recommends --no-install-suggests -y $v-apcu-bc || exit $?; \

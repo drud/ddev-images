@@ -22,6 +22,9 @@ DEFAULT_IMAGES = ddev-php-base ddev-php-prod
 VERSION := $(shell git describe --tags --always --dirty)
 BUILDINFO = $(shell echo hash=$$(git rev-parse --short HEAD) Built $$(date) by $${USER} on $$(hostname) $(BUILD_IMAGE) )
 
+# In CI environments, use the plain Docker build progress to not overload the CI logs
+PROGRESS := $(if $(CI),plain,auto)
+
 #
 # This version-strategy uses a manual value to set the version string
 #VERSION := 1.2.3
@@ -36,7 +39,7 @@ push: images
 	for item in $(DEFAULT_IMAGES); do docker push $(DOCKER_ORG)/$$item:$(VERSION); echo "pushed $(DOCKER_ORG)/$$item"; done
 
 ddev-php-prod ddev-php-base: buildinfo
-	DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) docker buildx build --progress=plain --platform linux/amd64,linux/arm64 --label com.ddev.buildhost=${shell hostname} --target=$@  -t $(DOCKER_ORG)/$@:$(VERSION) $(DOCKER_ARGS) .
+	DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) docker buildx build --progress=$(PROGRESS) --platform linux/amd64,linux/arm64 --label com.ddev.buildhost=${shell hostname} --target=$@  -t $(DOCKER_ORG)/$@:$(VERSION) $(DOCKER_ARGS) .
 
 test: images
 	for item in $(DEFAULT_IMAGES); do \
