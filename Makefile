@@ -39,7 +39,7 @@ push: images
 	for item in $(DEFAULT_IMAGES); do docker push $(DOCKER_ORG)/$$item:$(VERSION); echo "pushed $(DOCKER_ORG)/$$item"; done
 
 ddev-php-prod ddev-php-base: buildinfo
-	DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) docker buildx build --progress=$(PROGRESS) --platform linux/amd64,linux/arm64 --label com.ddev.buildhost=${shell hostname} --target=$@  -t $(DOCKER_ORG)/$@:$(VERSION) $(DOCKER_ARGS) .
+	DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) docker buildx build --progress=$(PROGRESS) --load --platform linux/amd64,linux/arm64 --label com.ddev.buildhost=${shell hostname} --target=$@  -t $(DOCKER_ORG)/$@:$(VERSION) $(DOCKER_ARGS) .
 
 test: images
 	for item in $(DEFAULT_IMAGES); do \
