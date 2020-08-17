@@ -57,12 +57,14 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
     sqlite3 \
     yarn
 
-# PHP 5.6 is not available on linux/arm64 so we skip that version
+# PHP 5.6 is not available on linux/arm64 so we skip that version.
+# Also, the php7.4-apcu-bc package is not available on arm64.
+# Details: https://github.com/oerdnj/deb.sury.org/issues/1449
 SHELL ["/bin/bash", "-c"]
 RUN for v in $PHP_VERSIONS; do \
     [[ $v == "php5.6" && $TARGETPLATFORM == "linux/arm64" ]] && continue; \
     apt-get -qq install --no-install-recommends --no-install-suggests -y $v-apcu $v-bcmath $v-bz2 $v-curl $v-cgi $v-cli $v-common $v-fpm $v-gd $v-intl $v-json $v-ldap $v-mbstring $v-memcached $v-mysql $v-opcache $v-pgsql $v-readline $v-redis $v-soap $v-sqlite3 $v-xdebug $v-xml $v-xmlrpc $v-zip || exit $?; \
-    if [ $v != "php5.6" ]; then \
+    if [[ $TARGETPLATFORM == "linux/amd64" && $v != "php5.6" ]] || [[ $TARGETPLATFORM == "linux/arm64" && $v != "php7.4" ]]; then \
         apt-get -qq install --no-install-recommends --no-install-suggests -y $v-apcu-bc || exit $?; \
     fi \
 done
