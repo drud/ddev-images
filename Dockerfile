@@ -1,6 +1,6 @@
 ### ---------------------------base--------------------------------------
 ### Build the base Debian image that will be used in every other image
-FROM bitnami/minideb:buster as base
+FROM debian:buster-slim as base
 RUN apt-get -qq update
 RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
     apt-transport-https \
@@ -34,6 +34,10 @@ ENV DRUSH_LAUNCHER_FALLBACK=/usr/local/bin/drush8
 # composer normally screams about running as root, we don't need that.
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_PROCESS_TIMEOUT 2000
+# TARGETPLATFORM is Docker buildx's target platform (e.g. linux/arm64), while 
+# BUILDPLATFORM is the platform of the build host (e.g. linux/amd64)
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
 
 RUN wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg && \
     echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list && apt-get update
@@ -53,14 +57,20 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
     sqlite3 \
     yarn
 
+# PHP 5.6 is not available on linux/arm64 so we skip that version.
+# Also, the php7.4-apcu-bc package is not available on arm64.
+# Details: https://github.com/oerdnj/deb.sury.org/issues/1449
+SHELL ["/bin/bash", "-c"]
 RUN for v in $PHP_VERSIONS; do \
+    [[ $v == "php5.6" && $TARGETPLATFORM == "linux/arm64" ]] && continue; \
     apt-get -qq install --no-install-recommends --no-install-suggests -y $v-apcu $v-bcmath $v-bz2 $v-curl $v-cgi $v-cli $v-common $v-fpm $v-gd $v-intl $v-json $v-ldap $v-mbstring $v-memcached $v-mysql $v-opcache $v-pgsql $v-readline $v-redis $v-soap $v-sqlite3 $v-xdebug $v-xml $v-xmlrpc $v-zip || exit $?; \
-    if [ $v != "php5.6" ]; then \
+    if [[ $TARGETPLATFORM == "linux/amd64" && $v != "php5.6" ]] || [[ $TARGETPLATFORM == "linux/arm64" && $v != "php7.4" ]]; then \
         apt-get -qq install --no-install-recommends --no-install-suggests -y $v-apcu-bc || exit $?; \
     fi \
 done
 
 RUN for v in php5.6 php7.0 php7.1; do \
+    [[ $v == "php5.6" && $TARGETPLATFORM == "linux/arm64" ]] && continue; \
     apt-get -qq install --no-install-recommends --no-install-suggests -y $v-mcrypt || exit $?; \
 done
 
