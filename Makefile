@@ -9,7 +9,7 @@ SHELL=/bin/bash
 DEFAULT_IMAGES = ddev-php-base ddev-php-prod
 BUILD_ARCHS=linux/amd64,linux/arm64
 
-.PHONY: prep
+.PHONY: prep images
 
 # VERSION can be set by
   # Default: git tag
@@ -32,7 +32,7 @@ build: images
 
 images: $(DEFAULT_IMAGES)
 
-$(DEFAULT_IMAGES): .docker-build-info.txt
+$(DEFAULT_IMAGES): prep .docker-build-info.txt
 	DOCKER_BUILDKIT=1 docker buildx build --progress=$(PROGRESS) $(BUILDPUSHARG) --platform linux/amd64 --label com.ddev.buildhost=${shell hostname} --target=$@  -t $(DOCKER_ORG)/$@:$(VERSION) $(DOCKER_ARGS) .
 
 push: images multi_arch
@@ -41,7 +41,7 @@ push: images multi_arch
 		echo "pushed $(DOCKER_ORG)/$$item"; \
 	done
 
-multi_arch: multi_arch_prep
+multi_arch: prep
 	for item in $(DEFAULT_IMAGES); do \
 		docker buildx build --platform $(BUILD_ARCHS) --label com.ddev.buildhost=${shell hostname} --target=$$item  -t $(DOCKER_ORG)/$$item:$(VERSION) $(DOCKER_ARGS) .; \
 		echo "created multi-arch builds $(DOCKER_ORG)/$$item"; \
@@ -61,7 +61,7 @@ version:
 .docker-build-info.txt:
 	@echo "$(VERSION) $(BUILDINFO)" >.docker-build-info.txt
 
-multi_arch_prep:
+prep:
 	# We need this to get arm64 qemu to work https://github.com/docker/buildx/issues/138#issuecomment-569240559
 	docker run --rm --privileged docker/binfmt:66f9012c56a8316f9244ffd7622d7c21c1f6f28d
 	if ! docker buildx inspect ddev-builder-multi --bootstrap >/dev/null; then docker buildx create --name ddev-builder-multi; fi
