@@ -41,9 +41,10 @@ ARG BUILDPLATFORM
 
 RUN wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg && \
     echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list && apt-get update
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
-    echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list
+RUN curl -sSL https://deb.nodesource.com/setup_12.x | bash -
+RUN curl -sSL -o /tmp/yarnkey.gpg https://dl.yarnpkg.com/debian/pubkey.gpg
+RUN apt-key add /tmp/yarnkey.gpg
+RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list
 
 RUN apt-get -qq update
 RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
