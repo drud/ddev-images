@@ -35,7 +35,7 @@ images: $(DEFAULT_IMAGES)
 $(DEFAULT_IMAGES): prep .docker-build-info.txt
 	DOCKER_BUILDKIT=1 docker buildx build --progress=$(PROGRESS) $(BUILDPUSHARG) --platform linux/amd64 --label com.ddev.buildhost=${shell hostname} --target=$@  -t $(DOCKER_ORG)/$@:$(VERSION) $(DOCKER_ARGS) .
 
-push: images multi_arch
+push: prep images multi_arch
 	for item in $(DEFAULT_IMAGES); do \
 		docker buildx build --push --platform $(BUILD_ARCHS) --label com.ddev.buildhost=${shell hostname} --target=$$item  -t $(DOCKER_ORG)/$$item:$(VERSION) $(DOCKER_ARGS) .; \
 		echo "pushed $(DOCKER_ORG)/$$item"; \

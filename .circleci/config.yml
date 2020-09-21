@@ -38,20 +38,7 @@ jobs:
       - run:
           name: "docker login if DOCKERHUB_TOKEN provided"
           command: if [ ! -z "${DOCKERHUB_TOKEN}" ]; then echo $DOCKERHUB_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin; fi
-      - run:
-          command: |
-            sudo apt-get update && sudo apt-get install docker-ce-cli binfmt-support qemu-user-static
-
-            BUILDX_BINARY_URL="https://github.com/docker/buildx/releases/download/v0.4.2/buildx-v0.4.2.linux-amd64"
-
-            curl --output docker-buildx \
-              --silent --show-error --location --fail --retry 3 \
-              "$BUILDX_BINARY_URL"
-
-            mkdir -p ~/.docker/cli-plugins
-            mv docker-buildx ~/.docker/cli-plugins
-            chmod a+x ~/.docker/cli-plugins/docker-buildx
-          name: Prepare docker buildx for multi-arch builds
+      - run: ./.circleci/linux_circle_vm_setup.sh
       - run: make
       - run: make test
 
@@ -60,6 +47,7 @@ jobs:
       image: ubuntu-1604:201903-01
     steps:
     - checkout
+    - run: ./.circleci/linux_circle_vm_setup.sh
     - run: make test
     - run: echo $DOCKERHUB_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
     - run: make push VERSION=${CIRCLE_TAG}
