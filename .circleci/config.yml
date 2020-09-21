@@ -18,7 +18,6 @@ workflows:
 
   release:
     jobs:
-    - build_and_test
     - release_build:
         context: ddev-images
         filters:
@@ -55,4 +54,13 @@ jobs:
           name: Prepare docker buildx for multi-arch builds
       - run: make
       - run: make test
-      - run: docker logout
+
+  release_build:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+    - checkout
+    - run: make test
+    - run: echo $DOCKERHUB_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
+    - run: make push VERSION=${CIRCLE_TAG}
+    - run: docker logout
