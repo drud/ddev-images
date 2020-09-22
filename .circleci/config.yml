@@ -30,6 +30,8 @@ workflows:
 
 jobs:
   build_and_test:
+    environment:
+      - CI: "true"
     machine:
       image: ubuntu-1604:202007-01
 
@@ -43,6 +45,8 @@ jobs:
       - run: make test
 
   release_build:
+    environment:
+    - CI: "true"
     machine:
       image: ubuntu-1604:201903-01
     steps:
