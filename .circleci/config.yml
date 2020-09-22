@@ -30,19 +30,28 @@ workflows:
 
 jobs:
   build_and_test:
+    environment:
+      - CI: "true"
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-1604:202007-01
 
     steps:
       - checkout
+      - run:
+          name: "docker login if DOCKERHUB_TOKEN provided"
+          command: if [ ! -z "${DOCKERHUB_TOKEN}" ]; then echo $DOCKERHUB_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin; fi
+      - run: ./.circleci/linux_circle_vm_setup.sh
       - run: make
       - run: make test
 
   release_build:
+    environment:
+    - CI: "true"
     machine:
       image: ubuntu-1604:201903-01
     steps:
     - checkout
+    - run: ./.circleci/linux_circle_vm_setup.sh
     - run: make test
     - run: echo $DOCKERHUB_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
     - run: make push VERSION=${CIRCLE_TAG}
