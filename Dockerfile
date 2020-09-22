@@ -14,6 +14,9 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
     procps \
     vim \
     wget
+# Without c_rehash TLS fails (at least for curl) on arm/v7
+# See https://github.com/balena-io-library/base-images/issues/562
+RUN c_rehash
 #END base
 
 ### ---------------------------ddev-php-base--------------------------------------
