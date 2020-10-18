@@ -9,7 +9,7 @@ SHELL=/bin/bash
 DEFAULT_IMAGES = ddev-php-base ddev-php-prod
 BUILD_ARCHS=linux/amd64,linux/arm64,linux/arm/v7
 
-.PHONY: prep images
+.PHONY: images
 
 # VERSION can be set by
   # Default: git tag
@@ -32,26 +32,16 @@ build: images
 
 images: $(DEFAULT_IMAGES)
 
-$(DEFAULT_IMAGES): prep .docker-build-info.txt
+$(DEFAULT_IMAGES): .docker-build-info.txt
 	set -eu -o pipefail; \
-	DOCKER_BUILDKIT=1 docker buildx build --progress=$(PROGRESS) $(BUILDPUSHARG) --platform linux/amd64 --label com.ddev.buildhost=${shell hostname} --target=$@  -t $(DOCKER_ORG)/$@:$(VERSION) $(DOCKER_ARGS) .
+	DOCKER_BUILDKIT=1 docker buildx build --load --progress=$(PROGRESS) $(BUILDPUSHARG) --platform linux/amd64 --label com.ddev.buildhost=${shell hostname} --target=$@  -t $(DOCKER_ORG)/$@:$(VERSION) $(DOCKER_ARGS) .
 
-push: prep images multi_arch
+push:
 	set -eu -o pipefail; \
 	for item in $(DEFAULT_IMAGES); do \
 		docker buildx build --push --platform $(BUILD_ARCHS) --label com.ddev.buildhost=${shell hostname} --target=$$item  -t $(DOCKER_ORG)/$$item:$(VERSION) $(DOCKER_ARGS) .; \
 		echo "pushed $(DOCKER_ORG)/$$item:$(VERSION)"; \
 	done
-
-multi_arch: prep
-	set -eu -o pipefail; \
-	for item in $(DEFAULT_IMAGES); do \
-		docker buildx build --platform $(BUILD_ARCHS) --label com.ddev.buildhost=${shell hostname} --target=$$item  -t $(DOCKER_ORG)/$$item:$(VERSION) $(DOCKER_ARGS) .; \
-		echo "created multi-arch builds $(DOCKER_ORG)/$$item:$(VERSION)"; \
-	done
-
-ddev-webserver:
-	docker buildx build --platform linux/amd64 -o type=docker --label com.ddev.buildhost=${shell hostname} --target=$@  -t $(DOCKER_ORG)/$@:$(VERSION) $(DOCKER_ARGS) .
 
 test: $(DEFAULT_IMAGES)
 	for item in $(DEFAULT_IMAGES); do \
@@ -63,9 +53,3 @@ version:
 
 .docker-build-info.txt:
 	@echo "$(VERSION) $(BUILDINFO)" >.docker-build-info.txt
-
-prep:
-	# We need this to get arm64 qemu to work https://github.com/docker/buildx/issues/138#issuecomment-569240559
-	docker run --rm --privileged docker/binfmt:66f9012c56a8316f9244ffd7622d7c21c1f6f28d
-	if ! docker buildx inspect ddev-builder-multi --bootstrap >/dev/null; then docker buildx create --name ddev-builder-multi; fi
-	docker buildx use ddev-builder-multi

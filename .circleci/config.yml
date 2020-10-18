@@ -41,7 +41,6 @@ jobs:
           name: "docker login if DOCKERHUB_TOKEN provided"
           command: if [ ! -z "${DOCKERHUB_TOKEN}" ]; then echo $DOCKERHUB_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin; fi
       - run: ./.circleci/linux_circle_vm_setup.sh
-      - run: make
       - run: make test
 
   release_build:
