@@ -7,7 +7,7 @@ DOCKER_ORG ?= drud
 SHELL=/bin/bash
 
 DEFAULT_IMAGES = ddev-php-base ddev-php-prod
-BUILD_ARCHS=linux/amd64,linux/arm64,linux/arm/v7
+BUILD_ARCHS=linux/amd64,linux/arm64
 
 .PHONY: images
 
