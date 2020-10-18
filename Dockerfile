@@ -27,7 +27,7 @@ RUN c_rehash
 FROM base AS ddev-php-base
 ARG PHP_DEFAULT_VERSION="7.3"
 ENV DDEV_PHP_VERSION=$PHP_DEFAULT_VERSION
-ENV PHP_VERSIONS="php5.6 php7.0 php7.1 php7.2 php7.3 php7.4"
+ENV PHP_VERSIONS="php5.6 php7.0 php7.1 php7.2 php7.3 php7.4 php8.0"
 ENV PHP_INI=/etc/php/$PHP_DEFAULT_VERSION/fpm/php.ini
 ENV WWW_UID=33
 ENV YQ_VERSION=2.4.1
@@ -67,10 +67,13 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
 SHELL ["/bin/bash", "-c"]
 RUN for v in $PHP_VERSIONS; do \
     [[ $v == "php5.6" && $TARGETPLATFORM == "linux/arm64" ]] && continue; \
-    apt-get -qq install --no-install-recommends --no-install-suggests -y $v-apcu $v-bcmath $v-bz2 $v-curl $v-cgi $v-cli $v-common $v-fpm $v-gd $v-intl $v-json $v-ldap $v-mbstring $v-memcached $v-mysql $v-opcache $v-pgsql $v-readline $v-redis $v-soap $v-sqlite3 $v-xdebug $v-xml $v-xmlrpc $v-zip || exit $?; \
-    if [[ $TARGETPLATFORM == "linux/amd64" && $v != "php5.6" ]] || [[ $TARGETPLATFORM == "linux/arm64" && $v != "php7.4" ]]; then \
+    apt-get -qq install --no-install-recommends --no-install-suggests -y $v-bcmath $v-bz2 $v-curl $v-cgi $v-cli $v-common $v-fpm $v-gd $v-intl $v-ldap $v-mbstring $v-mysql $v-opcache $v-pgsql $v-readline $v-soap $v-sqlite3 $v-xml $v-zip || exit $?; \
+    if [[ $v != "php8.0" ]]; then \
+        apt-get -qq install --no-install-recommends --no-install-suggests -y $v-apcu $v-json $v-memcached $v-redis $v-xdebug $v-xmlrpc || exit $?; \
+    fi; \
+    if [[ $TARGETPLATFORM == "linux/amd64" && $v != "php5.6" && $v != "php8.0" ]] || [[ $TARGETPLATFORM == "linux/arm64" && $v != "php7.4" ]]; then \
         apt-get -qq install --no-install-recommends --no-install-suggests -y $v-apcu-bc || exit $?; \
-    fi \
+    fi; \
 done
 
 RUN for v in php5.6 php7.0 php7.1; do \
