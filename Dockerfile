@@ -66,7 +66,7 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
 # Details: https://github.com/oerdnj/deb.sury.org/issues/1449
 SHELL ["/bin/bash", "-c"]
 RUN for v in $PHP_VERSIONS; do \
-    [[ $v == "php5.6" && $TARGETPLATFORM == "linux/arm64" ]] && continue; \
+    [[ ( $v == "php5.6" || $v == "php8.0") && $TARGETPLATFORM == "linux/arm64" ]] && continue; \
     apt-get -qq install --no-install-recommends --no-install-suggests -y $v-bcmath $v-bz2 $v-curl $v-cgi $v-cli $v-common $v-fpm $v-gd $v-intl $v-ldap $v-mbstring $v-mysql $v-opcache $v-pgsql $v-readline $v-soap $v-sqlite3 $v-xml $v-zip || exit $?; \
     if [[ $v != "php8.0" ]]; then \
         apt-get -qq install --no-install-recommends --no-install-suggests -y $v-apcu $v-json $v-memcached $v-redis $v-xdebug $v-xmlrpc || exit $?; \
