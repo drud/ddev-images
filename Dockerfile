@@ -41,12 +41,33 @@ ENV COMPOSER_PROCESS_TIMEOUT 2000
 # BUILDPLATFORM is the platform of the build host (e.g. linux/amd64)
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
+SHELL ["/bin/bash", "-c"]
+
+# The number of permutations of php packages available on each architecture because
+# too much to handle, so has been codified here instead of in obscure logic
+ENV php56_amd64="apcu apcu-bc bcmath bz2 curl cgi cli common fpm gd intl ldap mbstring mcrypt memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml zip"
+ENV php56_arm64_="bcmath bz2 curl cgi cli common fpm gd intl ldap mbstring mcrypt mysql opcache pgsql readline soap sqlite3 xml zip"
+ENV php70_amd64=$php56_amd64
+ENV php70_arm64=$php56_arm64
+ENV php71_amd64=$phpy70_amd64
+ENV php71_arm64=$php70_arm64
+ENV php72_amd64="apcu apcu-bc bcmath bz2 curl cgi cli common fpm gd intl ldap mbstring memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml zip"
+ENV php72_arm64=$php72_amd64
+ENV php73_amd64=$php72_amd64
+ENV php73_arm64=$php72_arm64
+# The php7.4-apcu-bc package is not available on arm64.
+# Details: https://github.com/oerdnj/deb.sury.org/issues/1449
+ENV php74_amd64="apcu bcmath bz2 curl cgi cli common fpm gd intl ldap mbstring memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml zip"
+ENV php74_arm64="apcu bcmath bz2 curl cgi cli common fpm gd intl ldap mbstring memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml zip"
+ENV php80_amd64="bcmath bz2 curl cgi cli common fpm gd intl ldap mbstring mysql opcache pgsql readline soap sqlite3 xml zip"
+ENV php80_arm64=""
+
+
 
 RUN wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg && \
     echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list && apt-get update
-RUN curl -sSL https://deb.nodesource.com/setup_12.x | bash -
-RUN curl -sSL -o /tmp/yarnkey.gpg https://dl.yarnpkg.com/debian/pubkey.gpg
-RUN apt-key add /tmp/yarnkey.gpg
+RUN curl -sSL --fail https://deb.nodesource.com/setup_12.x | bash -
+RUN wget -O /tmp/yarnkey.gpg https://dl.yarnpkg.com/debian/pubkey.gpg && apt-key add /tmp/yarnkey.gpg
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list
 
 RUN apt-get -qq update
@@ -61,24 +82,30 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
     sqlite3 \
     yarn
 
-# PHP 5.6 is not available on linux/arm64 so we skip that version.
-# Also, the php7.4-apcu-bc package is not available on arm64.
+# The number of permutations of php packages available on each architecture because
+# too much to handle, so has been codified here instead of in obscure logic
+ENV php56_amd64="apcu bcmath bz2 curl cgi cli common fpm gd intl json ldap mbstring mcrypt memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml xmlrpc zip"
+ENV php56_arm64_="bcmath bz2 curl cgi cli common fpm gd intl json ldap mbstring mcrypt mysql opcache pgsql readline soap sqlite3 xml zip"
+ENV php70_amd64="apcu apcu-bc bcmath bz2 curl cgi cli common fpm gd intl json ldap mbstring mcrypt memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml xmlrpc zip"
+ENV php70_arm64=$php70_amd64
+ENV php71_amd64=$phpy70_amd64
+ENV php71_arm64=$php70_arm64
+ENV php72_amd64="apcu apcu-bc bcmath bz2 curl cgi cli common fpm gd intl json ldap mbstring memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml xmlrpc zip"
+ENV php72_arm64=$php72_amd64
+ENV php73_amd64=$php72_amd64
+ENV php73_arm64=$php72_arm64
+ENV php74_amd64="apcu apcu-bc bcmath bz2 curl cgi cli common fpm gd intl json ldap mbstring memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml xmlrpc zip"
+# The php7.4-apcu-bc package is not available on arm64.
 # Details: https://github.com/oerdnj/deb.sury.org/issues/1449
-SHELL ["/bin/bash", "-c"]
-RUN for v in $PHP_VERSIONS; do \
-    [[ ( $v == "php5.6" || $v == "php8.0") && $TARGETPLATFORM == "linux/arm64" ]] && continue; \
-    apt-get -qq install --no-install-recommends --no-install-suggests -y $v-bcmath $v-bz2 $v-curl $v-cgi $v-cli $v-common $v-fpm $v-gd $v-intl $v-ldap $v-mbstring $v-mysql $v-opcache $v-pgsql $v-readline $v-soap $v-sqlite3 $v-xml $v-zip || exit $?; \
-    if [[ $v != "php8.0" ]]; then \
-        apt-get -qq install --no-install-recommends --no-install-suggests -y $v-apcu $v-json $v-memcached $v-redis $v-xdebug $v-xmlrpc || exit $?; \
-    fi; \
-    if [[ $TARGETPLATFORM == "linux/amd64" && $v != "php5.6" && $v != "php8.0" ]] || [[ $TARGETPLATFORM == "linux/arm64" && $v != "php7.4" ]]; then \
-        apt-get -qq install --no-install-recommends --no-install-suggests -y $v-apcu-bc || exit $?; \
-    fi; \
-done
+ENV php74_arm64="apcu bcmath bz2 curl cgi cli common fpm gd intl json ldap mbstring memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml xmlrpc zip"
+ENV php80_amd64="bcmath bz2 curl cgi cli common fpm gd intl ldap mbstring mysql opcache pgsql readline soap sqlite3 xml zip"
+ENV php80_arm64=""
 
-RUN for v in php5.6 php7.0 php7.1; do \
-    [[ $v == "php5.6" && $TARGETPLATFORM == "linux/arm64" ]] && continue; \
-    apt-get -qq install --no-install-recommends --no-install-suggests -y $v-mcrypt || exit $?; \
+RUN for v in $PHP_VERSIONS; do \
+    targetarch=${TARGETPLATFORM#linux/}; \
+    pkgvar=${v//.}_${targetarch}; \
+    pkgs=$(echo ${!pkgvar} | awk -v v="$v" ' BEGIN {RS=" "; }  { printf "%s-%s ",v,$0 ; }' ); \
+    [[ ${pkgs// } != "" ]] && (apt-get -qq install --no-install-recommends --no-install-suggests -y $pkgs || exit $?) \
 done
 
 RUN apt-get -qq autoremove -y
