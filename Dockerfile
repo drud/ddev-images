@@ -83,7 +83,7 @@ ENV php74_amd64="apcu apcu-bc bcmath bz2 curl cgi cli common fpm gd intl json ld
 # Details: https://github.com/oerdnj/deb.sury.org/issues/1449
 ENV php74_arm64="apcu bcmath bz2 curl cgi cli common fpm gd intl json ldap mbstring memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml xmlrpc zip"
 ENV php80_amd64="bcmath bz2 curl cgi cli common fpm gd intl ldap mbstring mysql opcache pgsql readline soap sqlite3 xml zip"
-ENV php80_arm64=""
+ENV php80_arm64=$php80_amd64
 
 RUN for v in $PHP_VERSIONS; do \
     targetarch=${TARGETPLATFORM#linux/}; \
