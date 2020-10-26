@@ -69,7 +69,7 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
 # The number of permutations of php packages available on each architecture because
 # too much to handle, so has been codified here instead of in obscure logic
 ENV php56_amd64="apcu bcmath bz2 curl cgi cli common fpm gd intl json ldap mbstring mcrypt memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml xmlrpc zip"
-ENV php56_arm64_="bcmath bz2 curl cgi cli common fpm gd intl json ldap mbstring mcrypt mysql opcache pgsql readline soap sqlite3 xml zip"
+ENV php56_arm64="bcmath bz2 curl cgi cli common fpm gd intl json ldap mbstring mcrypt mysql opcache pgsql readline soap sqlite3 xml zip"
 ENV php70_amd64="apcu apcu-bc bcmath bz2 curl cgi cli common fpm gd intl json ldap mbstring mcrypt memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml xmlrpc zip"
 ENV php70_arm64=$php70_amd64
 ENV php71_amd64=$php70_amd64
