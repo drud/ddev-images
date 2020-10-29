@@ -29,7 +29,6 @@ ARG PHP_DEFAULT_VERSION="7.3"
 ENV DDEV_PHP_VERSION=$PHP_DEFAULT_VERSION
 ENV PHP_VERSIONS="php5.6 php7.0 php7.1 php7.2 php7.3 php7.4 php8.0"
 ENV PHP_INI=/etc/php/$PHP_DEFAULT_VERSION/fpm/php.ini
-ENV WWW_UID=33
 ENV YQ_VERSION=2.4.1
 ENV DRUSH_VERSION=8.4.5
 ENV DRUSH_LAUNCHER_VERSION=0.7.3
@@ -100,7 +99,6 @@ RUN curl -sSL -o /usr/local/bin/wp-cli -O https://raw.githubusercontent.com/wp-c
 RUN wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
 ADD ddev-php-files /
 RUN apt-get -qq autoremove && apt-get -qq clean -y && rm -rf /var/lib/apt/lists/*
-RUN usermod -u ${WWW_UID} www-data && groupmod -g ${WWW_UID} www-data
 RUN	update-alternatives --set php /usr/bin/php${DDEV_PHP_VERSION}
 RUN ln -sf /usr/sbin/php-fpm${DDEV_PHP_VERSION} /usr/sbin/php-fpm
 RUN mkdir -p /run/php && chown -R www-data:www-data /run
