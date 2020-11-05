@@ -53,7 +53,6 @@ RUN wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
 RUN curl -sSL --fail https://deb.nodesource.com/setup_14.x | bash -
 RUN wget -O /tmp/yarnkey.gpg https://dl.yarnpkg.com/debian/pubkey.gpg && apt-key add /tmp/yarnkey.gpg
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list
-RUN npm install --global gulp-cli
 
 RUN apt-get -qq update
 RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
@@ -66,6 +65,8 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
     php-uploadprogress \
     sqlite3 \
     yarn
+
+RUN npm install --global gulp-cli
 
 # The number of permutations of php packages available on each architecture because
 # too much to handle, so has been codified here instead of in obscure logic
