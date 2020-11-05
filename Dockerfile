@@ -31,11 +31,12 @@ ENV PHP_VERSIONS="php5.6 php7.0 php7.1 php7.2 php7.3 php7.4 php8.0"
 ENV PHP_INI=/etc/php/$PHP_DEFAULT_VERSION/fpm/php.ini
 ENV YQ_VERSION=2.4.1
 ENV DRUSH_VERSION=8.4.5
-ENV DRUSH_LAUNCHER_VERSION=0.7.3
+ENV DRUSH_LAUNCHER_VERSION=0.8.0
 ENV DRUSH_LAUNCHER_FALLBACK=/usr/local/bin/drush8
 # composer normally screams about running as root, we don't need that.
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_PROCESS_TIMEOUT 2000
+
 # TARGETPLATFORM is Docker buildx's target platform (e.g. linux/arm64), while 
 # BUILDPLATFORM is the platform of the build host (e.g. linux/amd64)
 ARG TARGETPLATFORM
@@ -49,9 +50,10 @@ ENV php56_arm64_="bcmath bz2 curl cgi cli common fpm gd intl ldap mbstring mcryp
 
 RUN wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg && \
     echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list && apt-get update
-RUN curl -sSL --fail https://deb.nodesource.com/setup_12.x | bash -
+RUN curl -sSL --fail https://deb.nodesource.com/setup_14.x | bash -
 RUN wget -O /tmp/yarnkey.gpg https://dl.yarnpkg.com/debian/pubkey.gpg && apt-key add /tmp/yarnkey.gpg
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list
+RUN npm install --global gulp-cli
 
 RUN apt-get -qq update
 RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
