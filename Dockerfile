@@ -31,7 +31,7 @@ ENV PHP_VERSIONS="php5.6 php7.0 php7.1 php7.2 php7.3 php7.4 php8.0"
 ENV PHP_INI=/etc/php/$PHP_DEFAULT_VERSION/fpm/php.ini
 ENV YQ_VERSION=2.4.1
 ENV DRUSH_VERSION=8.4.5
-ENV DRUSH_LAUNCHER_VERSION=0.8.0
+ENV DRUSH_LAUNCHER_VERSION=0.7.4
 ENV DRUSH_LAUNCHER_FALLBACK=/usr/local/bin/drush8
 # composer normally screams about running as root, we don't need that.
 ENV COMPOSER_ALLOW_SUPERUSER 1
