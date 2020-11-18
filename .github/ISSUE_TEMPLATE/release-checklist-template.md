@@ -7,16 +7,26 @@ assignees: ''
 
 ---
 
-## Definition of Done: Release
+### Prepare Release
+- [ ] Manual checks for features, with release tag
+- [ ] Code complete freeze
+- [ ] All code in release tagged, following semver
+- [ ] Release notes drafted and linked
+- [ ] QA for new release
+  - [ ] Manual checks validated in `qa`
+  - [ ] Automated tests green in `qa`
 
-- [ ] Code Complete
-- [ ] No unintegrated or in-progress work on dev or staging
-- [ ] All “To Do” annotations must have been resolved
-- [ ] Environments are prepared for release
-- [ ] QA for supported devices/browsers done & all issues resolved
-- [ ] All functional tests are green
+If applicable:
+- [ ] Environments prepped for release
+- [ ] Statuspage announcement of release
+- [ ] Customer docs prepped
+
+### Perform Release
 - [ ] OK from team
+- [ ] Manual checklists validated on prod
+- [ ] Automated tests are green
 - [ ] Release notes published
-- [ ] User docs updated
 
-R<sup>Eng. Lead, Team</sup> A<sup>Scrum Master</sup> CI<sup>Product Owner</sup>
+If applicable:
+- [ ] Customer docs published
+- [ ] Statuspage Release completion
