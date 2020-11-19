@@ -7,33 +7,24 @@ assignees: ''
 
 ---
 
-## Bug Description:
+**Describe the bug**
+A clear and concise description of what the bug is.
 
+**To Reproduce**
+Steps to reproduce the behavior:
 
-## Steps to Reproduce:
+1. Go to '...'
+2. Click on '....'
+3. Scroll down to '....'
+4. See error
 
+**Expected behavior**
+A clear and concise description of what you expected to happen.
 
-## Version and configuration:
+**Screenshots**
+If applicable, add screenshots to help explain your problem.
 
+**Version and configuration information:**
 
-## Related links or issues:
-
-
-## Definition of Ready Checklist:
-
-- [ ] Provides steps to reproduce
-- [ ] Dependencies identified
-- [ ] Sized by team
-<!--- [ ] SLIs identified, where appropriate -->
-
-R<sup>Product Owner</sup> A<sup>Scrum Master</sup> C<sup>Eng. Lead</sup> I<sup>Team</sup>
-
-## Definition of Done Checklist:
-
-- [ ] Deployed on test environment
-- [ ] Steps do not reproduce
-- [ ] Unit test and E2E coverage updated (if applicable)
-- [ ] Builds without errors
-- [ ] Internal documentation updated (if required)
-
-R<sup>Eng. Lead, Team</sup> A<sup>Scrum Master</sup> CI<sup>Product Owner</sup>
+**Additional context**
+Add any other context about the problem here. Thanks!

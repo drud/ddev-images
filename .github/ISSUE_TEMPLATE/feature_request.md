@@ -7,35 +7,14 @@ assignees: ''
 
 ---
 
-## Feature Description:
+**Is your feature request related to a problem? Please describe.**
+A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
+**Describe the solution you'd like**
+A clear and concise description of what you want to happen.
 
-## User stories:
+**Describe alternatives you've considered**
+A clear and concise description of any alternative solutions or features you've considered.
 
-
-## Acceptance criteria:
-
-
-## Related links or issues:
-
-
-## Definition of Ready Checklist:
-
-- [ ] User-facing feature: provides story or A/C in [Gherkin format](https://cucumber.io/docs/gherkin), or
-- [ ] Architectural feature: provides technical A/C
-- [ ] Dependencies identified
-- [ ] Sized by team
-<!--- [ ] SLIs identified, where appropriate -->
-
-R<sup>Product Owner</sup> A<sup>Scrum Master</sup> C<sup>Eng. Lead</sup> I<sup>Team</sup>
-
-## Definition of Done Checklist:
-
-- [ ] Acceptance Criteria tested and passing
-- [ ] Deployed on test environment
-- [ ] QA performed & issues resolved
-- [ ] Unit test and E2E coverage updated (if applicable)
-- [ ] Builds without errors
-- [ ] Internal documentation updated (if required)
-
-R<sup>Eng. Lead, Team</sup> A<sup>Scrum Master</sup> CI<sup>Product Owner</sup>
+**Additional context**
+Add any other context or screenshots about the feature request here.
