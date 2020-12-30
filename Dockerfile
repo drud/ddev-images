@@ -65,19 +65,19 @@ RUN npm install --global gulp-cli
 
 # The number of permutations of php packages available on each architecture because
 # too much to handle, so has been codified here instead of in obscure logic
-ENV php56_amd64="apcu bcmath bz2 curl cgi cli common fpm gd intl json ldap mbstring mcrypt memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml xmlrpc zip"
-ENV php56_arm64="apcu bcmath bz2 curl cgi cli common fpm gd intl json ldap mbstring mcrypt mysql opcache pgsql readline soap sqlite3 xdebug xml xmlrpc zip"
-ENV php70_amd64="apcu apcu-bc bcmath bz2 curl cgi cli common fpm gd intl json ldap mbstring mcrypt memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml xmlrpc zip"
+ENV php56_amd64="apcu bcmath bz2 curl cli common fpm gd intl json ldap mbstring mcrypt memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml xmlrpc zip"
+ENV php56_arm64="apcu bcmath bz2 curl cli common fpm gd intl json ldap mbstring mcrypt mysql opcache pgsql readline soap sqlite3 xdebug xml xmlrpc zip"
+ENV php70_amd64="apcu apcu-bc bcmath bz2 curl cli common fpm gd intl json ldap mbstring mcrypt memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml xmlrpc zip"
 ENV php70_arm64=$php70_amd64
 ENV php71_amd64=$php70_amd64
 ENV php71_arm64=$php70_arm64
-ENV php72_amd64="apcu apcu-bc bcmath bz2 curl cgi cli common fpm gd intl json ldap mbstring memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml xmlrpc zip"
+ENV php72_amd64="apcu apcu-bc bcmath bz2 curl cli common fpm gd intl json ldap mbstring memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml xmlrpc zip"
 ENV php72_arm64=$php72_amd64
 ENV php73_amd64=$php72_amd64
 ENV php73_arm64=$php72_arm64
-ENV php74_amd64="apcu apcu-bc bcmath bz2 curl cgi cli common fpm gd intl json ldap mbstring memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml xmlrpc zip"
+ENV php74_amd64="apcu apcu-bc bcmath bz2 curl cli common fpm gd intl json ldap mbstring memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml xmlrpc zip"
 ENV php74_arm64=$php74_amd64
-ENV php80_amd64="apcu bcmath bz2 curl cgi cli common fpm gd intl ldap mbstring mysql opcache pgsql readline soap sqlite3 xdebug xml zip"
+ENV php80_amd64="apcu bcmath bz2 curl cli common fpm gd intl ldap mbstring mysql opcache pgsql readline soap sqlite3 xdebug xml zip"
 ENV php80_arm64=$php80_amd64
 
 RUN for v in $PHP_VERSIONS; do \
@@ -90,7 +90,7 @@ done
 RUN apt-get -qq autoremove -y
 RUN curl -o /usr/local/bin/composer -sSL https://getcomposer.org/composer-1.phar && chmod ugo+wx /usr/local/bin/composer
 RUN curl -sSL "https://github.com/drush-ops/drush/releases/download/${DRUSH_VERSION}/drush.phar" -o /usr/local/bin/drush8 && chmod +x /usr/local/bin/drush8
-RUN curl -sSL "https://github.com/drush-ops/drush-launcher/releases/download/${DRUSH_LAUNCHER_VERSION}/drush.phar" -o /usr/local/bin/drush && chmod +x /usr/local/bin/drush
+RUN curl -sSL "https://github.com/drush-ops/drush-launcher/releases/download/${DRUSH_LAUNCHER_VERSION}/drush.phar" -o /usr/local/bin/drush_launcher && chmod +x /usr/local/bin/drush_launcher
 RUN curl -sSL -o /usr/local/bin/wp-cli -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && chmod +x /usr/local/bin/wp-cli && ln -sf /usr/local/bin/wp-cli /usr/local/bin/wp
 RUN wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
 ADD ddev-php-files /
