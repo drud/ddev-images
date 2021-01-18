@@ -31,8 +31,6 @@ ENV PHP_VERSIONS="php5.6 php7.0 php7.1 php7.2 php7.3 php7.4 php8.0"
 ENV PHP_INI=/etc/php/$PHP_DEFAULT_VERSION/fpm/php.ini
 ENV YQ_VERSION=2.4.1
 ENV DRUSH_VERSION=8.4.5
-ENV DRUSH_LAUNCHER_VERSION=0.7.4
-ENV DRUSH_LAUNCHER_FALLBACK=/usr/local/bin/drush8
 # composer normally screams about running as root, we don't need that.
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_PROCESS_TIMEOUT 2000
@@ -90,7 +88,6 @@ done
 RUN apt-get -qq autoremove -y
 RUN curl -o /usr/local/bin/composer -sSL https://getcomposer.org/composer-1.phar && chmod ugo+wx /usr/local/bin/composer
 RUN curl -sSL "https://github.com/drush-ops/drush/releases/download/${DRUSH_VERSION}/drush.phar" -o /usr/local/bin/drush8 && chmod +x /usr/local/bin/drush8
-RUN curl -sSL "https://github.com/drush-ops/drush-launcher/releases/download/${DRUSH_LAUNCHER_VERSION}/drush.phar" -o /usr/local/bin/drush_launcher && chmod +x /usr/local/bin/drush_launcher
 RUN curl -sSL -o /usr/local/bin/wp-cli -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && chmod +x /usr/local/bin/wp-cli && ln -sf /usr/local/bin/wp-cli /usr/local/bin/wp
 RUN wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
 ADD ddev-php-files /
@@ -107,7 +104,6 @@ ADD /.docker-build-info.txt /
 ### There aren't any differences
 FROM scratch AS ddev-php-prod
 COPY --from=ddev-php-base / /
-ENV DRUSH_LAUNCHER_FALLBACK=/usr/local/bin/drush8
 EXPOSE 8080 8585
 CMD ["/usr/sbin/php-fpm", "-F"]
 #END ddev-php-prod
