@@ -75,7 +75,9 @@ ENV php73_amd64=$php72_amd64
 ENV php73_arm64=$php72_arm64
 ENV php74_amd64="apcu apcu-bc bcmath bz2 curl cli common fpm gd intl json ldap mbstring memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml xmlrpc zip"
 ENV php74_arm64=$php74_amd64
-ENV php80_amd64="apcu bcmath bz2 curl cli common fpm gd intl ldap mbstring mysql opcache pgsql readline soap sqlite3 xdebug xml zip"
+
+# As of php8.0 json is now part of core package and xmlrpc has been removed from PECL
+ENV php80_amd64="apcu bcmath bz2 curl cli common fpm gd intl ldap mbstring memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xml zip"
 ENV php80_arm64=$php80_amd64
 
 RUN for v in $PHP_VERSIONS; do \
