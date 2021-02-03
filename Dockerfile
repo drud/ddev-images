@@ -44,8 +44,6 @@ SHELL ["/bin/bash", "-c"]
 RUN wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg && \
     echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list && apt-get update
 RUN curl -sSL --fail https://deb.nodesource.com/setup_14.x | bash -
-RUN wget -O /tmp/yarnkey.gpg https://dl.yarnpkg.com/debian/pubkey.gpg && apt-key add /tmp/yarnkey.gpg
-RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list
 
 RUN apt-get -qq update
 RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
@@ -56,10 +54,9 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
     nodejs \
     php-imagick \
     php-uploadprogress \
-    sqlite3 \
-    yarn
+    sqlite3
 
-RUN npm install --global gulp-cli
+RUN npm install --global gulp-cli yarn
 
 # The number of permutations of php packages available on each architecture because
 # too much to handle, so has been codified here instead of in obscure logic
