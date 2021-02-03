@@ -56,7 +56,7 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
     php-uploadprogress \
     sqlite3
 
-RUN npm install --global gulp-cli yarn
+RUN npm config set unsafe-perm true && npm install --global gulp-cli yarn
 
 # The number of permutations of php packages available on each architecture because
 # too much to handle, so has been codified here instead of in obscure logic
