@@ -32,6 +32,7 @@ jobs:
   build_and_test:
     environment:
       - CI: "true"
+      - BUILDKIT_PROGRESS: plain
     machine:
       image: ubuntu-1604:202007-01
 
@@ -45,7 +46,8 @@ jobs:
 
   release_build:
     environment:
-    - CI: "true"
+      - CI: "true"
+      - BUILDKIT_PROGRESS: plain
     machine:
       image: ubuntu-1604:201903-01
     steps:
