@@ -5,11 +5,11 @@
 
 
 @test "check existence/version of various required tools for ${WEBSERVER_TYPE} php${PHP_VERSION}" {
+    echo "# We are trying $CONTAINER_NAME with PHP $PHP_VERSION"
+    echo "# docker exec -t $CONTAINER_NAME php --version"
     docker exec -t $CONTAINER_NAME php --version | grep "PHP ${PHP_VERSION}"
-    docker exec -t $CONTAINER_NAME drush --version
-    docker exec -t $CONTAINER_NAME wp --version
     #TODO: Make sure composer cache is used here; mount it?
-    docker exec -t $CONTAINER_NAME composer create-project -d //tmp psr/log --no-dev --no-interaction
+    docker exec -t $CONTAINER_NAME composer create-project -d /tmp psr/log --no-dev --no-interaction
 }
 
 @test "http and https phpstatus access work inside and outside container for ${WEBSERVER_TYPE} php${PHP_VERSION}" {

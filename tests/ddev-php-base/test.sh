@@ -22,45 +22,40 @@ export PATH="/usr/local/bin:$PATH"
 mkcert -install
 
 # Wait for container to be ready.
+# Wait for container to be ready.
 function containerwait {
-	for i in {60..0};
+	for i in {20..0};
 	do
 		# status contains uptime and health in parenthesis, sed to return health
-		status="$(docker ps --format "{{.Status}}" --filter "name=$CONTAINER_NAME" | sed  's/.*(\(.*\)).*/\1/')"
-		if [[ "$status" == "healthy" ]]
-		then
-			return 0
-		fi
+		status="$(docker inspect $CONTAINER_NAME | jq -r '.[0].State.Status')"
+		case $status in
+		running)
+		  return 0
+		  ;;
+		exited)
+		  echo "# --- container exited"
+		  return 1
+		  ;;
+		esac
 		sleep 1
 	done
-	echo "# --- ddev-dbserver FAIL: information"
-	docker ps -a
-	docker logs $CONTAINER_NAME
-	docker inspect $CONTAINER_NAME
+	echo "# --- containerwait failed: information:"
 	return 1
 }
 
 function cleanup {
 	docker rm -f $CONTAINER_NAME >/dev/null 2>&1 || true
 }
-trap cleanup EXIT
+#trap cleanup EXIT
 cleanup
 
 # We have to push the CA into the ddev-global-cache volume so it will be respected
-docker run -t --rm -u "$MOUNTUID:$MOUNTGID" -v "$(mkcert -CAROOT):/mnt/mkcert" -v ddev-global-cache:/mnt/ddev-global-cache $DOCKER_IMAGE bash -c "sudo mkdir -p /mnt/ddev-global-cache/mkcert && sudo chmod -R ugo+w /mnt/ddev-global-cache/* && sudo cp -R /mnt/mkcert /mnt/ddev-global-cache"
-
-# Run general tests with a default container
-docker run -u "$MOUNTUID:$MOUNTGID" -p $HOST_HTTP_PORT:$CONTAINER_HTTP_PORT -p $HOST_HTTPS_PORT:$CONTAINER_HTTPS_PORT -e "DOCROOT=docroot" -e "DDEV_PHP_VERSION=${PHP_VERSION}" -e "DDEV_WEBSERVER_TYPE=${WEBSERVER_TYPE}" -d --name $CONTAINER_NAME -v ddev-global-cache:/mnt/ddev-global-cache -d $DOCKER_IMAGE >/dev/null
-if ! containerwait; then
-    echo "=============== Failed containerwait after docker run with  DDEV_WEBSERVER_TYPE=${WEBSERVER_TYPE} DDEV_PHP_VERSION=$PHP_VERSION ==================="
-    exit 100
-fi
-bats tests/ddev-webserver-dev/general.bats
+docker run -t --rm -u "$MOUNTUID:$MOUNTGID" -v "$(mkcert -CAROOT):/mnt/mkcert" -v ddev-global-cache:/mnt/ddev-global-cache $DOCKER_IMAGE bash -c "mkdir -p /mnt/ddev-global-cache/mkcert && cp -R /mnt/mkcert /mnt/ddev-global-cache"
 
 cleanup
 
-for PHP_VERSION in 5.6 7.0 7.1 7.2 7.3 7.4; do
-    for WEBSERVER_TYPE in nginx-fpm apache-fpm apache-cgi; do
+for PHP_VERSION in 5.6 7.0 7.1 7.2 7.3 7.4 8.0; do
+    for WEBSERVER_TYPE in nginx-fpm apache-fpm; do
         export PHP_VERSION WEBSERVER_TYPE
 
         docker run -u "$MOUNTUID:$MOUNTGID" -p $HOST_HTTP_PORT:$CONTAINER_HTTP_PORT -p $HOST_HTTPS_PORT:$CONTAINER_HTTPS_PORT -e "DOCROOT=docroot" -e "DDEV_PHP_VERSION=${PHP_VERSION}" -e "DDEV_WEBSERVER_TYPE=${WEBSERVER_TYPE}" -d --name $CONTAINER_NAME -v ddev-global-cache:/mnt/ddev-global-cache -d $DOCKER_IMAGE >/dev/null
@@ -69,7 +64,7 @@ for PHP_VERSION in 5.6 7.0 7.1 7.2 7.3 7.4; do
             exit 101
         fi
 
-        bats tests/ddev-webserver-dev/php_webserver.bats || ( echo "bats tests failed for WEBSERVER_TYPE=$WEBSERVER_TYPE PHP_VERSION=$PHP_VERSION" && exit 102 )
+        bats tests/ddev-php-base/php_webserver.bats || ( echo "bats tests failed for WEBSERVER_TYPE=$WEBSERVER_TYPE PHP_VERSION=$PHP_VERSION" && exit 102 )
         printf "Test successful for PHP_VERSION=$PHP_VERSION WEBSERVER_TYPE=$WEBSERVER_TYPE\n\n"
         cleanup
     done
@@ -87,15 +82,15 @@ for project_type in drupal6 drupal7 drupal8 drupal9 typo3 backdrop wordpress def
         exit 103
     fi
 
-    bats tests/ddev-webserver-dev/project_type.bats || ( echo "bats tests failed for project_type=$project_type" && exit 104 )
+    bats tests/ddev-php-base/project_type.bats || ( echo "bats tests failed for project_type=$project_type" && exit 104 )
     printf "Test successful for project_type=$project_type\n\n"
     cleanup
 done
 
-docker run  -u "$MOUNTUID:$MOUNTGID" -p $HOST_HTTP_PORT:$CONTAINER_HTTP_PORT -p $HOST_HTTPS_PORT:$CONTAINER_HTTPS_PORT -e "DOCROOT=potato" -e "DDEV_PHP_VERSION=7.3" -v "/$PWD/tests/ddev-webserver-dev/testdata:/mnt/ddev_config:ro" -v ddev-global-cache:/mnt/ddev-global-cache -d --name $CONTAINER_NAME -d $DOCKER_IMAGE >/dev/null
+docker run  -u "$MOUNTUID:$MOUNTGID" -p $HOST_HTTP_PORT:$CONTAINER_HTTP_PORT -p $HOST_HTTPS_PORT:$CONTAINER_HTTPS_PORT -e "DOCROOT=potato" -e "DDEV_PHP_VERSION=7.3" -v "/$PWD/tests/ddev-php-base/testdata:/mnt/ddev_config:ro" -v ddev-global-cache:/mnt/ddev-global-cache -d --name $CONTAINER_NAME -d $DOCKER_IMAGE >/dev/null
 containerwait
 
-bats tests/ddev-webserver-dev/custom_config.bats
+bats tests/ddev-php-base/custom_config.bats
 
 cleanup
 
