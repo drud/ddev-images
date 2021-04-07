@@ -71,7 +71,7 @@ for PHP_VERSION in 5.6 7.0 7.1 7.2 7.3 7.4 8.0; do
 done
 
 for project_type in drupal6 drupal7 drupal8 drupal9 typo3 backdrop wordpress default; do
-	export PHP_VERSION="7.3"
+	export PHP_VERSION="7.4"
     export project_type
 	if [ "$project_type" == "drupal6" ]; then
 	  PHP_VERSION="5.6"

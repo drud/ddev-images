@@ -44,7 +44,7 @@ push:
 	done
 
 test: $(DEFAULT_IMAGES)
-	DOCKER_BUILDKIT=1 docker buildx build --load --platform="linux/$$(./get_arch.sh)" --label com.ddev.buildhost=${shell hostname}  -t $(DOCKER_ORG)/$@:$(VERSION) $(DOCKER_ARGS) .
+	DOCKER_BUILDKIT=1 docker buildx build --load --platform="linux/$$(./get_arch.sh)" --label com.ddev.buildhost=${shell hostname}  -t $(DOCKER_ORG)/$<:$(VERSION) $(DOCKER_ARGS) .
 	for item in $(DEFAULT_IMAGES); do \
 		if [ -x tests/$$item/test.sh ]; then tests/$$item/test.sh $(DOCKER_ORG)/$$item:$(VERSION); fi; \
 	done
