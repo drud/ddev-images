@@ -23,13 +23,12 @@ RUN c_rehash
 ### Build ddev-php-base, which is the base for ddev-php-prod and ddev-webserver-*
 ### This combines the packages and features of DDEV-Local's ddev-webserver and
 ### DDEV-Live's PHP image
-### TODO: See if we want to just build with a single PHP version or as now with all of them.
 FROM base AS ddev-php-base
-ARG PHP_DEFAULT_VERSION="7.3"
+ARG PHP_DEFAULT_VERSION="7.4"
 ENV DDEV_PHP_VERSION=$PHP_DEFAULT_VERSION
 ENV PHP_VERSIONS="php5.6 php7.0 php7.1 php7.2 php7.3 php7.4 php8.0"
 ENV PHP_INI=/etc/php/$PHP_DEFAULT_VERSION/fpm/php.ini
-ENV YQ_VERSION=2.4.1
+ENV YQ_VERSION=v4.7.1
 ENV DRUSH_VERSION=8.4.8
 # composer normally screams about running as root, we don't need that.
 ENV COMPOSER_ALLOW_SUPERUSER 1
@@ -39,6 +38,7 @@ ENV COMPOSER_PROCESS_TIMEOUT 2000
 # BUILDPLATFORM is the platform of the build host (e.g. linux/amd64)
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
+
 SHELL ["/bin/bash", "-c"]
 
 RUN wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg && \
@@ -87,7 +87,7 @@ RUN apt-get -qq autoremove -y
 RUN curl -o /usr/local/bin/composer -sSL https://getcomposer.org/composer-stable.phar && chmod ugo+wx /usr/local/bin/composer
 RUN curl -sSL "https://github.com/drush-ops/drush/releases/download/${DRUSH_VERSION}/drush.phar" -o /usr/local/bin/drush8 && chmod +x /usr/local/bin/drush8
 RUN curl -sSL -o /usr/local/bin/wp-cli -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && chmod +x /usr/local/bin/wp-cli && ln -sf /usr/local/bin/wp-cli /usr/local/bin/wp
-RUN wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
+RUN url="https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${TARGETPLATFORM#linux/}"; wget ${url} -O /usr/bin/yq && chmod +x /usr/bin/yq
 ADD ddev-php-files /
 RUN apt-get -qq autoremove && apt-get -qq clean -y && rm -rf /var/lib/apt/lists/*
 RUN	update-alternatives --set php /usr/bin/php${DDEV_PHP_VERSION}
