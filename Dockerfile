@@ -8,7 +8,8 @@ RUN for item in dpkg-split dpkg-deb; do \
     ln -sf /usr/bin/$item /usr/sbin/$item; \
   fi; \
 done
-RUN ls -l /usr/sbin/dpkg-split /usr/sbin/dpkg-deb
+RUN   if [ ! -f /usr/sbin/tar ]; then ln -s /bin/tar /usr/sbin/tar; fi
+RUN ls -l /usr/sbin/dpkg-split /usr/sbin/dpkg-deb /usr/sbin/tar
 
 RUN apt-get -qq update
 RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
