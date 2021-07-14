@@ -15,5 +15,9 @@ mkdir -p ~/.docker/cli-plugins
 mv docker-buildx ~/.docker/cli-plugins
 chmod a+x ~/.docker/cli-plugins/docker-buildx
 
+docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
 if ! docker buildx inspect ddev-builder-multi --bootstrap >/dev/null; then docker buildx create --name ddev-builder-multi; fi
 docker buildx use ddev-builder-multi
+docker buildx inspect --bootstrap
+
