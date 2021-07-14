@@ -21,3 +21,5 @@ if ! docker buildx inspect ddev-builder-multi --bootstrap >/dev/null; then docke
 docker buildx use ddev-builder-multi
 docker buildx inspect --bootstrap
 
+which dpkg-split
+

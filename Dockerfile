@@ -1,6 +1,11 @@
 ### ---------------------------base--------------------------------------
 ### Build the base Debian image that will be used in every other image
 FROM debian:bullseye-slim as base
+
+RUN ls -l $(which dpkg-split)
+RUN if [ ! -f /usr/sbin/dpkg-split ]; then ln -sf /usr/bin/dpkg-split /usr/sbin/dpkg-split; fi
+RUN ls -l /usr/sbin/dpkg-split
+
 RUN apt-get -qq update
 RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
     apt-transport-https \
