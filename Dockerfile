@@ -1,6 +1,21 @@
 ### ---------------------------base--------------------------------------
 ### Build the base Debian image that will be used in every other image
-FROM debian:buster-slim as base
+FROM debian:bullseye-slim as base
+
+RUN ls -l $(which dpkg-split) && ls -l $(which dpkg-deb)
+RUN for item in dpkg-split dpkg-deb; do \
+  if [ ! -f /usr/sbin/$item ]; then \
+    ln -sf /usr/bin/$item /usr/sbin/$item; \
+  fi; \
+done
+RUN for item in tar rm; do \
+  if [ ! -f /usr/sbin/$item ]; then \
+    ln -sf /bin/$item /usr/sbin/$item; \
+  fi; \
+done
+
+RUN ls -l /usr/sbin/dpkg-split /usr/sbin/dpkg-deb /usr/sbin/tar /usr/sbin/rm
+
 RUN apt-get -qq update
 RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
     apt-transport-https \
@@ -12,11 +27,9 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
     less \
     lsb-release \
     procps \
+    tree \
     vim \
     wget
-# Without c_rehash TLS fails (at least for curl) on arm/v7
-# See https://github.com/balena-io-library/base-images/issues/562
-RUN c_rehash
 #END base
 
 ### ---------------------------ddev-php-base--------------------------------------
@@ -73,7 +86,7 @@ ENV php74_amd64="apcu apcu-bc bcmath bz2 curl cli common fpm gd imagick intl jso
 ENV php74_arm64=$php74_amd64
 
 # As of php8.0 json is now part of core package and xmlrpc has been removed from PECL
-ENV php80_amd64="apcu bcmath bz2 curl cli common fpm gd imagick intl ldap mbstring memcached mysql opcache pgsql readline redis soap sqlite3 xdebug xhprof xml xmlrpc zip"
+ENV php80_amd64="apcu bcmath bz2 curl cli common fpm gd imagick intl ldap mbstring memcached mysql opcache pgsql readline redis soap sqlite3 uploadprogress xdebug xhprof xml xmlrpc zip"
 ENV php80_arm64=$php80_amd64
 
 RUN for v in $PHP_VERSIONS; do \
