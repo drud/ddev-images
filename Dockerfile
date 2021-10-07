@@ -32,14 +32,11 @@ RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
     wget
 #END base
 
-### ---------------------------ddev-php-base--------------------------------------
-### Build ddev-php-base, which is the base for ddev-php-prod and ddev-webserver-*
-### This combines the packages and features of DDEV-Local's ddev-webserver and
-### DDEV-Live's PHP image
-FROM base AS ddev-php-base
+### ---------------------------deploy-php-image-base--------------------------------------
+FROM base AS deploy-php-image-base
 ARG PHP_DEFAULT_VERSION="7.4"
-ENV DDEV_PHP_VERSION=$PHP_DEFAULT_VERSION
-ENV PHP_VERSIONS="php5.6 php7.0 php7.1 php7.2 php7.3 php7.4 php8.0 php8.1"
+#ENV PHP_VERSIONS="php5.6 php7.0 php7.1 php7.2 php7.3 php7.4 php8.0 php8.1"
+ENV PHP_VERSIONS="php7.2 php7.3 php7.4 php8.0"
 ENV PHP_INI=/etc/php/$PHP_DEFAULT_VERSION/fpm/php.ini
 # composer normally screams about running as root, we don't need that.
 ENV COMPOSER_ALLOW_SUPERUSER 1
@@ -98,12 +95,23 @@ RUN for v in $PHP_VERSIONS; do \
 done
 RUN phpdismod xhprof
 RUN apt-get -qq autoremove -y
-RUN curl -o /usr/local/bin/composer -sSL https://getcomposer.org/composer-stable.phar && chmod ugo+wx /usr/local/bin/composer
-ADD ddev-php-files /
-RUN apt-get -qq autoremove && apt-get -qq clean -y && rm -rf /var/lib/apt/lists/*
-RUN	update-alternatives --set php /usr/bin/php${DDEV_PHP_VERSION}
-RUN ln -sf /usr/sbin/php-fpm${DDEV_PHP_VERSION} /usr/sbin/php-fpm
+ADD image-files /
+RUN	update-alternatives --set php /usr/bin/php${PHP_DEFAULT_VERSION}
+RUN ln -sf /usr/sbin/php-fpm${PHP_DEFAULT_VERSION} /usr/sbin/php-fpm
 RUN mkdir -p /run/php && chown -R www-data:www-data /run
-ADD /.docker-build-info.txt /
 
-#END ddev-php-base
+#END deploy-php-image-base
+
+### ---------------------------deploy-php-image--------------------------------------
+FROM deploy-php-image-base AS deploy-php-image
+
+RUN apt-get -qq -y install openssh-client
+RUN /usr/local/bin/prepare_n.sh
+RUN curl -o /usr/local/bin/composer1 -sSL https://getcomposer.org/download/latest-1.x/composer.phar && \
+    chmod ugo+wx /usr/local/bin/composer1
+RUN curl -o /usr/local/bin/composer2 -sSL https://getcomposer.org/composer-stable.phar && \
+    chmod ugo+wx /usr/local/bin/composer2 && \
+    ln -s /usr/local/bin/composer2 /usr/local/bin/composer
+RUN apt-get -qq autoremove && apt-get -qq clean -y && rm -rf /var/lib/apt/lists/*
+
+#END deploy-php-image

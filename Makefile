@@ -6,8 +6,8 @@
 DOCKER_ORG ?= simp42
 SHELL=/bin/bash
 
-DEFAULT_IMAGES = ddev-php-base
-BUILD_ARCHS=linux/amd64,linux/arm64
+DEFAULT_IMAGES = deploy-php-image
+BUILD_ARCHS=linux/amd64
 
 .PHONY: images
 
@@ -34,7 +34,7 @@ images: $(DEFAULT_IMAGES)
 
 $(DEFAULT_IMAGES): .docker-build-info.txt
 	set -eu -o pipefail; \
-	DOCKER_BUILDKIT=1 docker buildx build $(BUILDPUSHARG) --platform linux/amd64,linux/arm64 --target=$@  -t $(DOCKER_ORG)/$@:$(VERSION) $(DOCKER_ARGS) .
+	DOCKER_BUILDKIT=1 docker buildx build $(BUILDPUSHARG) --platform linux/amd64 --target=$@  -t $(DOCKER_ORG)/$@:$(VERSION) $(DOCKER_ARGS) .
 
 push:
 	set -eu -o pipefail; \
