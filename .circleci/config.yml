@@ -32,9 +32,9 @@ jobs:
   build_and_test:
     environment:
       - CI: "true"
-      - BUILDKIT_PROGRESS: plain
+      - BUILDKIT_PROGRESS: "plain"
     machine:
-      image: ubuntu-2004:202107-02
+      image: ubuntu-2004:202104-01
 
     steps:
       - checkout
