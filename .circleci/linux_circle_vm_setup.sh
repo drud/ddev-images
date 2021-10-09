@@ -5,7 +5,7 @@ set -x
 
 sudo apt-get -qq update && sudo apt-get -qq install -y docker-ce-cli binfmt-support qemu-user-static
 
-BUILDX_BINARY_URL="https://github.com/docker/buildx/releases/download/v0.6.3/buildx-v0.6.3.linux-amd64"
+BUILDX_BINARY_URL="https://github.com/docker/buildx/releases/download/v0.5.1/buildx-v0.5.1.linux-amd64"
 
 curl --output docker-buildx \
   --silent --show-error --location --fail --retry 3 \
