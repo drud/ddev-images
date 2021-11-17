@@ -56,7 +56,7 @@ SHELL ["/bin/bash", "-c"]
 
 RUN wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg && \
     echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list && apt-get update
-RUN curl -sSL --fail https://deb.nodesource.com/setup_14.x | bash -
+RUN curl -sSL --fail https://deb.nodesource.com/setup_16.x | bash -
 
 RUN apt-get -qq update
 RUN apt-get -qq install --no-install-recommends --no-install-suggests -y \
