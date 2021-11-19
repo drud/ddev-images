@@ -89,7 +89,7 @@ ENV php74_arm64=$php74_amd64
 ENV php80_amd64="apcu bcmath bz2 curl cli common fpm gd imagick intl ldap mbstring memcached mysql opcache pgsql readline redis soap sqlite3 uploadprogress xdebug xhprof xml xmlrpc zip"
 ENV php80_arm64=$php80_amd64
 
-ENV php81_amd64="apcu bcmath bz2 curl cli common fpm gd imagick intl ldap mbstring mysql opcache pgsql readline soap sqlite3 uploadprogress xdebug xhprof xml xmlrpc zip"
+ENV php81_amd64=$php80_amd64
 ENV php81_arm64=$php81_amd64
 
 RUN for v in $PHP_VERSIONS; do \
