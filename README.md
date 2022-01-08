@@ -1,3 +1,7 @@
+# ARCHIVED AND OBSOLETE
+
+The important code has been moved to https://github.com/drud/ddev
+
 # ddev-images
 
 This repository provides the build techniques for the webserving/php DDEV-Live Docker images and provides the base for DDEV-Local to build ddev-webserver images:
